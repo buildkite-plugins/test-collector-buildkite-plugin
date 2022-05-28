@@ -1,0 +1,23 @@
+name: Test Analytics Collector
+description: ...
+author: https://github.com/buildkite
+requirements:
+  - docker
+configuration:
+  properties:
+    files:
+      type: string
+    artifacts:
+      type: string
+    format:
+      enum:
+        - json
+        - junit
+    api-token-env-name:
+      type: string
+  oneOf:
+    - required:
+      - files
+    - required:
+      - artifacts
+  additionalProperties: false
