@@ -4,7 +4,7 @@ A Buildkite plugin for uploading [JSON](https://buildkite.com/docs/test-analytic
 
 ## 👉 Usage
 
-### Uploading a JSON file
+### Upload a JSON file
 
 To upload a JSON file to Test Analytics from a build step:
 
@@ -17,7 +17,7 @@ steps:
           files: "test-data*.json"
 ```
 
-### Uploading a JUnit file
+### Upload a JUnit file
 
 ```yaml
 steps:
@@ -28,7 +28,7 @@ steps:
           files: "test/junit-*.xml"
 ```
 
-### Uploading a build artifact
+### Upload a build artifact
 
 You can use the `artifact` property to upload artifacts that have been uploaded in previous steps:
 
