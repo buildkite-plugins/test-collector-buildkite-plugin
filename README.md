@@ -63,7 +63,7 @@ steps:
 
 ## ⚒ Developing
 
-You can use the [bk cli](https://github.com/buildkite/cli) to run the test pipeline locally, or just the tests using Docker Compose directly:
+You can use the [bk cli](https://github.com/buildkite/cli) to run the whole pipeline locally, or just the tests using Docker Compose directly:
 
 ```bash
 docker-compose run --rm tests
