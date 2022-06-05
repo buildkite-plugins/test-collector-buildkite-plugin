@@ -55,10 +55,11 @@ steps:
 
 ## Properties
 
-* `files` — String — Required — A file path pattern of files to upload to Test Analytics
-* `format` — String — Required — Possible values: `"junit"`, `"json"`
-* `artifact` — Boolean — Optional — Search for the files as build artifacts. Default value: `false`
-* `api-token-env-name` — String — Optional — The name of the environment variable that contains the Buildkite Test Analytics API Token. Default value: `"BUILDKITE_ANALYTICS_API_TOKEN"`
+* `files` — Required — String — Pattern of files to upload to Test Analytics
+* `format` — Required — String — Format of the file. Possible values: `"junit"`, `"json"`
+* `api-token-env-name` — Optional — String — Name of the environment variable that contains the Test Analytics API token. Default value: `"BUILDKITE_ANALYTICS_TOKEN"`
+
+<!-- * `artifact` — Optional — Boolean — Search for the files as build artifacts. Default value: `false` -->
 
 ## ⚒ Developing
 
