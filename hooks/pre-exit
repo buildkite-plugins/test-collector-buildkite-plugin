@@ -1,4 +1,59 @@
 #!/bin/bash
 set -euo pipefail
 
-echo "Hello world"
+upload() {
+  local token="$1"
+  local format="$2"
+  local file="$3"
+
+  # TODO: Add info about this plugin being the collector that's sending the data
+
+  curl \
+    -X POST \
+    --silent --show-error \
+    -H "Authorization: Token token=\"$token\"" \
+    -F "format=$format" \
+    -F "data=@$file" \
+    -F "run_env[CI]=buildkite" \
+    -F "run_env[key]=$BUILDKITE_BUILD_ID" \
+    -F "run_env[url]=$BUILDKITE_BUILD_URL" \
+    -F "run_env[branch]=$BUILDKITE_BRANCH" \
+    -F "run_env[commit_sha]=$BUILDKITE_COMMIT" \
+    -F "run_env[number]=$BUILDKITE_BUILD_NUMBER" \
+    -F "run_env[job_id]=$BUILDKITE_JOB_ID" \
+    -F "run_env[message]=$BUILDKITE_MESSAGE" \
+    https://analytics-api.buildkite.com/v1/uploads
+}
+
+TOKEN_ENV_NAME="${BUILDKITE_PLUGIN_TEST_COLLECTOR_API_TOKEN_ENV_NAME:-BUILDKITE_ANALYTICS_TOKEN}"
+TOKEN=$(eval "echo \${$TOKEN_ENV_NAME:-}")
+
+FILES_PATTERN="${BUILDKITE_PLUGIN_TEST_COLLECTOR_FILES:-}"
+FORMAT="${BUILDKITE_PLUGIN_TEST_COLLECTOR_FORMAT:-}"
+
+if [[ -z "${TOKEN}" ]]; then
+  echo "Missing $TOKEN_ENV_NAME environment variable"
+  exit 1
+fi
+
+if [[ -z "${FILES_PATTERN}" ]]; then
+  echo "Missing file upload pattern 'files', e.g. 'junit-*.xml'"
+  exit 1
+fi
+
+if [[ -z "${FORMAT}" ]]; then
+  echo "Missing file format 'format'. Possible values: 'junit', 'xml'"
+  exit 1
+fi
+
+readarray -d '' matching_files < <(find . -path "$FILES_PATTERN" -print0)
+
+if [[ "${#matching_files[@]}" -eq "0" ]]; then
+  echo "No files found matching '${FILES_PATTERN}'"
+  exit 1
+fi
+
+for file in "${matching_files[@]}"; do
+  echo "Uploading $file..."
+  upload "$TOKEN" "$FORMAT" "${file}"
+done

@@ -1,4 +1,4 @@
-name: Test Analytics Collector
+name: Test Collector Buildkite Plugin
 description: ...
 author: https://github.com/buildkite
 requirements:
