@@ -1,12 +1,18 @@
 #!/bin/bash
 set -euo pipefail
 
+# Uploads files to the Test Analytics API
+#
+# Upload failures should not fail the build, and should have a sensible timeout,
+# so that Test Analytics availability doesn't affect build reliability.
+#
+# TODO: Add info about this plugin being the collector that's sending the data
+# TODO: Add timeouts
+# TODO: Add build annotation on failure
 upload() {
   local token="$1"
   local format="$2"
   local file="$3"
-
-  # TODO: Add info about this plugin being the collector that's sending the data
 
   curl \
     -X POST \
