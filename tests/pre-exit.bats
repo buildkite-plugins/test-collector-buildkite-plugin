@@ -60,10 +60,14 @@ setup() {
   export BUILDKITE_BUILD_NUMBER="123"
   export BUILDKITE_JOB_ID="321"
   export BUILDKITE_MESSAGE="A message"
+
+  # TODO: stub curl
+
   run "$PWD/hooks/pre-exit"
 
   assert_success
-  assert_output --partial "Uploaded 'test/fixtures/junit-1.xml' to Test Analytics"
+  assert_output --partial "Uploading './tests/fixtures/junit-1.xml'..."
+  refute_output --partial '"message"' # JSON error message
 }
 
 @test "Uploads multiple file" {
@@ -79,9 +83,17 @@ setup() {
   export BUILDKITE_BUILD_NUMBER="123"
   export BUILDKITE_JOB_ID="321"
   export BUILDKITE_MESSAGE="A message"
+
+  # TODO: stub curl
+
   run "$PWD/hooks/pre-exit"
 
   assert_success
-  assert_output --partial "Uploaded 'test/fixtures/junit-1.xml' to Test Analytics"
-  assert_output --partial "Uploaded 'test/fixtures/junit-2.xml' to Test Analytics"
+  assert_output --partial "Uploading './tests/fixtures/junit-1.xml'..."
+  assert_output --partial "Uploading './tests/fixtures/junit-2.xml'..."
+  refute_output --partial '"message"' # JSON error message
 }
+
+# TODO: Test debug
+# TODO: Test timeout
+# TODO: Test plugin version w/ and w/o git available

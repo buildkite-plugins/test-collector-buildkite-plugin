@@ -91,6 +91,6 @@ if [[ "${#matching_files[@]}" -eq "0" ]]; then
 fi
 
 for file in "${matching_files[@]}"; do
-  echo "Uploading $file..."
+  echo "Uploading '$file'..."
   upload "$TOKEN_VALUE" "$FORMAT" "${file}"
 done
