@@ -1,4 +1,4 @@
-# Test Collector Buildkite Plugin (WIP)
+# Test Collector Buildkite Plugin (Alpha)
 
 A Buildkite plugin for uploading [JSON](https://buildkite.com/docs/test-analytics/importing-json) or [JUnit](https://buildkite.com/docs/test-analytics/importing-junit-xml) files to [Buildkite Test Analytics](https://buildkite.com/test-analytics) ✨
 
