@@ -9,16 +9,16 @@ FORMAT="${BUILDKITE_PLUGIN_TEST_COLLECTOR_FORMAT:-}"
 
 TIMEOUT="${BUILDKITE_PLUGIN_TEST_COLLECTOR_TIMEOUT:-30}"
 
+DEBUG="false"
+
 if [[ "${BUILDKITE_PLUGIN_TEST_COLLECTOR_DEBUG:-}" =~ ^(true|on|1|always)$ ]]; then
   DEBUG="true"
 elif [[ "${BUILDKITE_ANALYTICS_DEBUG_ENABLED:-}" =~ ^(true|on|1|always)$ ]]; then
   DEBUG="true"
-else
-  DEBUG="false"
 fi
 
 TOKEN_VALUE=$(eval "echo \${$TOKEN_ENV_NAME:-}")
-PLUGIN_VERSION=$( (which git && git rev-parse --short HEAD) || echo "" )
+PLUGIN_VERSION=$(git rev-parse --short HEAD 2>/dev/null || echo "")
 
 # Uploads files to the Test Analytics API
 #
