@@ -1,4 +1,4 @@
-# Test Collector Buildkite Plugin (WIX)
+# Test Collector Buildkite Plugin (WIP)
 
 A Buildkite plugin for uploading [JSON](https://buildkite.com/docs/test-analytics/importing-json) or [JUnit](https://buildkite.com/docs/test-analytics/importing-junit-xml) files to [Buildkite Test Analytics](https://buildkite.com/test-analytics) ✨
 
