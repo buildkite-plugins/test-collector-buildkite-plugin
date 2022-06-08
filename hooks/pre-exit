@@ -83,7 +83,7 @@ if [[ -z "${FORMAT}" ]]; then
   exit 1
 fi
 
-readarray -d '' matching_files < <(find . -path "$FILES_PATTERN" -print0)
+readarray -d '' matching_files < <(find . -path "./${FILES_PATTERN}" -print0 | sort -z)
 
 if [[ "${#matching_files[@]}" -eq "0" ]]; then
   echo "No files found matching '${FILES_PATTERN}'"
