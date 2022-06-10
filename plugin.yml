@@ -14,7 +14,7 @@ configuration:
         - junit
     api-token-env-name:
       type: string
-   debug:
+    debug:
       type: boolean
     timeout:
       type: integer

@@ -50,10 +50,10 @@ setup() {
   unstub git
 
   assert_success
-  assert_output --partial "Uploading './tests/fixtures/junit-1.xml'..."
   assert_output --partial "Uploading './tests/fixtures/junit-2.xml'..."
-  assert_output --partial "curl success 1"
+  assert_output --partial "Uploading './tests/fixtures/junit-1.xml'..."
   assert_output --partial "curl success 2"
+  assert_output --partial "curl success 1"
 }
 
 @test "Debug true prints the curl info w/o token" {
