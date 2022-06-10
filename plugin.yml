@@ -1,13 +1,12 @@
-name: Test Collector Buildkite Plugin
-description: ...
+name: Test Collector
+description: Uploads you JSON or JUnit files to Buildkite Test Analytics
 author: https://github.com/buildkite
 requirements:
   - docker
+  - curl
 configuration:
   properties:
     files:
-      type: string
-    artifacts:
       type: string
     format:
       enum:
@@ -15,9 +14,11 @@ configuration:
         - junit
     api-token-env-name:
       type: string
-  oneOf:
-    - required:
-      - files
-    - required:
-      - artifacts
+    debug:
+      type: boolean
+    timeout:
+      type: integer
+  required:
+    - files
+    - format
   additionalProperties: false
