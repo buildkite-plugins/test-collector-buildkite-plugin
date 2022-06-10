@@ -1,7 +1,7 @@
 #!/usr/bin/env bats
 
 # To debug stubs, uncomment these lines:
-# export CURL_STUB_DEBUG=/dev/tty
+export CURL_STUB_DEBUG=/dev/tty
 # export GIT_STUB_DEBUG=/dev/tty
 
 setup() {
