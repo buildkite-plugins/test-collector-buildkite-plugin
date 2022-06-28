@@ -88,9 +88,11 @@ while IFS=$'' read -r matching_file ; do
   matching_files+=("$matching_file")
 done < <(find . -path "./${FILES_PATTERN}")
 
-if [[ "${#matching_files[@]}" -eq "0" ]]; then
-  echo "No files found matching '${FILES_PATTERN}'"
-  exit 1
+if [ -n "${BUILDKITE_COMMAND_EXIT_STATUS}" ] && [ "${BUILDKITE_COMMAND_EXIT_STATUS}" -eq "0" ]; then
+  if [[ "${#matching_files[@]}" -eq "0" ]]; then
+    echo "No files found matching '${FILES_PATTERN}'"
+    exit 1
+  fi
 fi
 
 for file in "${matching_files[@]}"; do
