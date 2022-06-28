@@ -97,3 +97,7 @@ for file in "${matching_files[@]}"; do
   echo "Uploading '$file'..."
   upload "$TOKEN_VALUE" "$FORMAT" "${file}"
 done
+
+if [ -v "${BUILDKITE_COMMAND_EXIT_STATUS}" ] && [ "${BUILDKITE_COMMAND_EXIT_STATUS}" -ne "0" ]; then
+  exit "${BUILDKITE_COMMAND_EXIT_STATUS}"
+fi
