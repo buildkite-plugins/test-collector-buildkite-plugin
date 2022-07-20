@@ -34,7 +34,7 @@ setup() {
   run "$PWD/hooks/pre-exit"
 
   assert_failure
-  assert_output --partial "Missing file format 'format'. Possible values: 'junit', 'xml'"
+  assert_output --partial "Missing file format 'format'. Possible values: 'junit', 'json'"
 }
 
 @test "Errors if no file is found" {
