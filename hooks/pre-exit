@@ -79,7 +79,7 @@ if [[ -z "${FILES_PATTERN}" ]]; then
 fi
 
 if [[ -z "${FORMAT}" ]]; then
-  echo "Missing file format 'format'. Possible values: 'junit', 'xml'"
+  echo "Missing file format 'format'. Possible values: 'junit', 'json'"
   exit 1
 fi
 
