@@ -18,6 +18,8 @@ configuration:
       type: boolean
     timeout:
       type: integer
+    skip:
+      type: boolean
   required:
     - files
     - format

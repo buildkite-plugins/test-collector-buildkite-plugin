@@ -130,3 +130,12 @@ setup() {
   assert_success
   assert_output --partial "curl success"
 }
+
+@test "skip is configurable" {
+  export BUILDKITE_PLUGIN_TEST_COLLECTOR_SKIP='true'
+
+  run "$PWD/hooks/pre-exit"
+
+  assert_success
+  assert_output "Skipping upload since 'skip' set to true"
+}

@@ -11,10 +11,16 @@ TIMEOUT="${BUILDKITE_PLUGIN_TEST_COLLECTOR_TIMEOUT:-30}"
 
 DEBUG="false"
 
+SKIP="false"
+
 if [[ "${BUILDKITE_PLUGIN_TEST_COLLECTOR_DEBUG:-}" =~ ^(true|on|1|always)$ ]]; then
   DEBUG="true"
 elif [[ "${BUILDKITE_ANALYTICS_DEBUG_ENABLED:-}" =~ ^(true|on|1|always)$ ]]; then
   DEBUG="true"
+fi
+
+if [[ "${BUILDKITE_PLUGIN_TEST_COLLECTOR_SKIP:-}" =~ ^(true|on|1|always)$ ]]; then
+  SKIP="true"
 fi
 
 TOKEN_VALUE=$(eval "echo \${$TOKEN_ENV_NAME:-}")
@@ -67,6 +73,11 @@ upload() {
 
   curl "${curl_args[@]}" || true
 }
+
+if [[ "$SKIP" == "true" ]]; then
+  echo "Skipping upload since 'skip' set to true"
+  exit 0
+fi
 
 if [[ -z "${TOKEN_VALUE}" ]]; then
   echo "Missing $TOKEN_ENV_NAME environment variable"
