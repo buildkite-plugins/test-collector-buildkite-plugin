@@ -9,7 +9,10 @@ configuration:
     hook:
       type: string
       default: pre-exit
-      enum: ["pre-exit", "post-artifact", "post-command"]
+      enum:
+        - pre-exit
+        - post-artifact
+        - post-command
     files:
       type: string
     format:
