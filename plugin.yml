@@ -6,6 +6,10 @@ requirements:
   - curl
 configuration:
   properties:
+    hook:
+      type: string
+      default: pre-exit
+      values: ["pre-exit", "post-artifact", "post-command"]
     files:
       type: string
     format:

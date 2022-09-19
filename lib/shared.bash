@@ -1,0 +1,101 @@
+#!/bin/bash
+set -euo pipefail
+
+# Uploads files to the Test Analytics API
+#
+# Upload failures should not fail the build, and should have a sensible timeout,
+# so that Test Analytics availability doesn't affect build reliability.
+#
+# TODO: Add build annotation on failure
+upload() {
+  local file="$3"
+
+  local curl_args=(
+    "-X" "POST"
+    "--silent"
+    "--show-error"
+    "--max-time" "$TIMEOUT"
+    "--form" "format=$FORMAT"
+    "--form" "data=@$file"
+    "--form" "run_env[CI]=buildkite"
+    "--form" "run_env[key]=$BUILDKITE_BUILD_ID"
+    "--form" "run_env[url]=$BUILDKITE_BUILD_URL"
+    "--form" "run_env[branch]=$BUILDKITE_BRANCH"
+    "--form" "run_env[commit_sha]=$BUILDKITE_COMMIT"
+    "--form" "run_env[number]=$BUILDKITE_BUILD_NUMBER"
+    "--form" "run_env[job_id]=$BUILDKITE_JOB_ID"
+    "--form" "run_env[message]=$BUILDKITE_MESSAGE"
+    "--form" "run_env[collector]=test-collector-buildkite-plugin"
+  )
+
+  if [[ "$DEBUG" == "true" ]]; then
+    curl_args+=("--form" "run_env[debug]=$DEBUG")
+  fi
+
+  if [[ -n "$PLUGIN_VERSION" ]]; then
+    curl_args+=("--form" "run_env[version]=$PLUGIN_VERSION")
+  fi
+
+  curl_args+=("https://analytics-api.buildkite.com/v1/uploads")
+
+  # Print debugging output before we add the token, so it doesn't ever get
+  # printed to output
+  if [[ "$DEBUG" == "true" ]]; then
+    echo curl "${curl_args[@]}"
+  fi
+
+  curl_args+=("-H" "Authorization: Token token=\"$TOKEN_VALUE\"")
+
+  curl "${curl_args[@]}" || true
+}
+
+run() {
+    TOKEN_ENV_NAME="${BUILDKITE_PLUGIN_TEST_COLLECTOR_API_TOKEN_ENV_NAME:-BUILDKITE_ANALYTICS_TOKEN}"
+
+    FILES_PATTERN="${BUILDKITE_PLUGIN_TEST_COLLECTOR_FILES:-}"
+
+    FORMAT="${BUILDKITE_PLUGIN_TEST_COLLECTOR_FORMAT:-}"
+
+    TIMEOUT="${BUILDKITE_PLUGIN_TEST_COLLECTOR_TIMEOUT:-30}"
+
+    DEBUG="false"
+
+    if [[ "${BUILDKITE_PLUGIN_TEST_COLLECTOR_DEBUG:-}" =~ ^(true|on|1|always)$ ]]; then
+      DEBUG="true"
+    elif [[ "${BUILDKITE_ANALYTICS_DEBUG_ENABLED:-}" =~ ^(true|on|1|always)$ ]]; then
+      DEBUG="true"
+    fi
+
+    TOKEN_VALUE=$(eval "echo \${$TOKEN_ENV_NAME:-}")
+    PLUGIN_VERSION=$(git rev-parse --short HEAD 2>/dev/null || echo "")
+
+    if [[ -z "${TOKEN_VALUE}" ]]; then
+      echo "Missing $TOKEN_ENV_NAME environment variable"
+      exit 1
+    fi
+
+    if [[ -z "${FILES_PATTERN}" ]]; then
+      echo "Missing file upload pattern 'files', e.g. 'junit-*.xml'"
+      exit 1
+    fi
+
+    if [[ -z "${FORMAT}" ]]; then
+      echo "Missing file format 'format'. Possible values: 'junit', 'json'"
+      exit 1
+    fi
+
+    matching_files=()
+    while IFS=$'' read -r matching_file ; do
+      matching_files+=("$matching_file")
+    done < <(find . -path "./${FILES_PATTERN}")
+
+    if [[ "${#matching_files[@]}" -eq "0" ]]; then
+      echo "No files found matching '${FILES_PATTERN}'"
+      exit 1
+    fi
+
+    for file in "${matching_files[@]}"; do
+      echo "Uploading '$file'..."
+      upload "$TOKEN_VALUE" "$FORMAT" "${file}"
+    done
+}
