@@ -7,6 +7,7 @@
 setup() {
   load "$BATS_PLUGIN_PATH/load.bash"
   export BUILDKITE_PLUGIN_TEST_COLLECTOR_API_TOKEN_ENV_NAME=""
+  export BUILDKITE_PLUGIN_TEST_COLLECTOR_HOOK="pre-exit"
 
   # Config
   export BUILDKITE_ANALYTICS_TOKEN='a-secret-analytics-token'

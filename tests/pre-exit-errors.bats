@@ -3,6 +3,7 @@
 setup() {
   load "$BATS_PLUGIN_PATH/load.bash"
   export BUILDKITE_PLUGIN_TEST_COLLECTOR_API_TOKEN_ENV_NAME=""
+  export BUILDKITE_PLUGIN_TEST_COLLECTOR_HOOK="pre-exit"
 }
 
 @test "Errors with no token set" {
