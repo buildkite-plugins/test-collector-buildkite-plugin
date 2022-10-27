@@ -35,7 +35,7 @@ upload() {
     "--show-error"
     "--max-time" "$TIMEOUT"
     "--form" "format=$FORMAT"
-    "--form" "data=@$file"
+    "--form" "data=@\"$file\""
     "--form" "run_env[CI]=buildkite"
     "--form" "run_env[key]=$BUILDKITE_BUILD_ID"
     "--form" "run_env[url]=$BUILDKITE_BUILD_URL"
