@@ -24,7 +24,7 @@ setup() {
 
 @test "Uploads a file" {
   stub git "rev-parse --short HEAD : echo 'some-commit-id'"
-  stub curl "-X POST --silent --show-error --max-time 30 --form format=junit --form data=\"@./tests/fixtures/junit-1.xml\" --form run_env[CI]=buildkite --form run_env[key]=an-id --form run_env[url]=https://url.com/ --form run_env[branch]=a-branch --form run_env[commit_sha]=a-commit --form run_env[number]=123 --form run_env[job_id]=321 --form run_env[message]=\"A message\" --form run_env[collector]=test-collector-buildkite-plugin --form run_env[version]=some-commit-id https://analytics-api.buildkite.com/v1/uploads -H 'Authorization: Token token=\"a-secret-analytics-token\"' : echo 'curl success'"
+  stub curl "-X POST --silent --show-error --max-time 30 --form format=junit --form data=\"@\\\"./tests/fixtures/junit-1.xml\\\"\" --form run_env[CI]=buildkite --form run_env[key]=an-id --form run_env[url]=https://url.com/ --form run_env[branch]=a-branch --form run_env[commit_sha]=a-commit --form run_env[number]=123 --form run_env[job_id]=321 --form run_env[message]=\"A message\" --form run_env[collector]=test-collector-buildkite-plugin --form run_env[version]=some-commit-id https://analytics-api.buildkite.com/v1/uploads -H 'Authorization: Token token=\"a-secret-analytics-token\"' : echo 'curl success'"
 
   run "$PWD/hooks/pre-exit"
 
@@ -41,8 +41,8 @@ setup() {
 
   stub git "rev-parse --short HEAD : echo 'some-commit-id'"
   stub curl \
-    "-X POST --silent --show-error --max-time 30 --form format=junit --form data=\"@./tests/fixtures/junit-1.xml\" --form run_env[CI]=buildkite --form run_env[key]=an-id --form run_env[url]=https://url.com/ --form run_env[branch]=a-branch --form run_env[commit_sha]=a-commit --form run_env[number]=123 --form run_env[job_id]=321 --form run_env[message]=\"A message\" --form run_env[collector]=test-collector-buildkite-plugin --form run_env[version]=some-commit-id https://analytics-api.buildkite.com/v1/uploads -H 'Authorization: Token token=\"a-secret-analytics-token\"' : echo 'curl success 1'" \
-    "-X POST --silent --show-error --max-time 30 --form format=junit --form data=\"@./tests/fixtures/junit-2.xml\" --form run_env[CI]=buildkite --form run_env[key]=an-id --form run_env[url]=https://url.com/ --form run_env[branch]=a-branch --form run_env[commit_sha]=a-commit --form run_env[number]=123 --form run_env[job_id]=321 --form run_env[message]=\"A message\" --form run_env[collector]=test-collector-buildkite-plugin --form run_env[version]=some-commit-id https://analytics-api.buildkite.com/v1/uploads -H 'Authorization: Token token=\"a-secret-analytics-token\"' : echo 'curl success 2'"
+    "-X POST --silent --show-error --max-time 30 --form format=junit --form data=\"@\\\"./tests/fixtures/junit-1.xml\\\"\" --form run_env[CI]=buildkite --form run_env[key]=an-id --form run_env[url]=https://url.com/ --form run_env[branch]=a-branch --form run_env[commit_sha]=a-commit --form run_env[number]=123 --form run_env[job_id]=321 --form run_env[message]=\"A message\" --form run_env[collector]=test-collector-buildkite-plugin --form run_env[version]=some-commit-id https://analytics-api.buildkite.com/v1/uploads -H 'Authorization: Token token=\"a-secret-analytics-token\"' : echo 'curl success 1'" \
+    "-X POST --silent --show-error --max-time 30 --form format=junit --form data=\"@\\\"./tests/fixtures/junit-2.xml\\\"\" --form run_env[CI]=buildkite --form run_env[key]=an-id --form run_env[url]=https://url.com/ --form run_env[branch]=a-branch --form run_env[commit_sha]=a-commit --form run_env[number]=123 --form run_env[job_id]=321 --form run_env[message]=\"A message\" --form run_env[collector]=test-collector-buildkite-plugin --form run_env[version]=some-commit-id https://analytics-api.buildkite.com/v1/uploads -H 'Authorization: Token token=\"a-secret-analytics-token\"' : echo 'curl success 2'"
 
   run "$PWD/hooks/pre-exit"
 
@@ -60,7 +60,7 @@ setup() {
   export BUILDKITE_PLUGIN_TEST_COLLECTOR_DEBUG="true"
 
   stub git "rev-parse --short HEAD : echo 'some-commit-id'"
-  stub curl "-X POST --silent --show-error --max-time 30 --form format=junit --form data=\"@./tests/fixtures/junit-1.xml\" --form run_env[CI]=buildkite --form run_env[key]=an-id --form run_env[url]=https://url.com/ --form run_env[branch]=a-branch --form run_env[commit_sha]=a-commit --form run_env[number]=123 --form run_env[job_id]=321 --form run_env[message]=\"A message\" --form run_env[collector]=test-collector-buildkite-plugin --form run_env[debug]=true --form run_env[version]=some-commit-id https://analytics-api.buildkite.com/v1/uploads -H 'Authorization: Token token=\"a-secret-analytics-token\"' : echo 'curl success'"
+  stub curl "-X POST --silent --show-error --max-time 30 --form format=junit --form data=\"@\\\"./tests/fixtures/junit-1.xml\\\"\" --form run_env[CI]=buildkite --form run_env[key]=an-id --form run_env[url]=https://url.com/ --form run_env[branch]=a-branch --form run_env[commit_sha]=a-commit --form run_env[number]=123 --form run_env[job_id]=321 --form run_env[message]=\"A message\" --form run_env[collector]=test-collector-buildkite-plugin --form run_env[debug]=true --form run_env[version]=some-commit-id https://analytics-api.buildkite.com/v1/uploads -H 'Authorization: Token token=\"a-secret-analytics-token\"' : echo 'curl success'"
 
   run "$PWD/hooks/pre-exit"
 
@@ -76,7 +76,7 @@ setup() {
   export BUILDKITE_ANALYTICS_DEBUG_ENABLED="true"
 
   stub git "rev-parse --short HEAD : echo 'some-commit-id'"
-  stub curl "-X POST --silent --show-error --max-time 30 --form format=junit --form data=\"@./tests/fixtures/junit-1.xml\" --form run_env[CI]=buildkite --form run_env[key]=an-id --form run_env[url]=https://url.com/ --form run_env[branch]=a-branch --form run_env[commit_sha]=a-commit --form run_env[number]=123 --form run_env[job_id]=321 --form run_env[message]=\"A message\" --form run_env[collector]=test-collector-buildkite-plugin --form run_env[debug]=true --form run_env[version]=some-commit-id https://analytics-api.buildkite.com/v1/uploads -H 'Authorization: Token token=\"a-secret-analytics-token\"' : echo 'curl success'"
+  stub curl "-X POST --silent --show-error --max-time 30 --form format=junit --form data=\"@\\\"./tests/fixtures/junit-1.xml\\\"\" --form run_env[CI]=buildkite --form run_env[key]=an-id --form run_env[url]=https://url.com/ --form run_env[branch]=a-branch --form run_env[commit_sha]=a-commit --form run_env[number]=123 --form run_env[job_id]=321 --form run_env[message]=\"A message\" --form run_env[collector]=test-collector-buildkite-plugin --form run_env[debug]=true --form run_env[version]=some-commit-id https://analytics-api.buildkite.com/v1/uploads -H 'Authorization: Token token=\"a-secret-analytics-token\"' : echo 'curl success'"
 
   run "$PWD/hooks/pre-exit"
 
@@ -92,7 +92,7 @@ setup() {
   export BUILDKITE_PLUGIN_TEST_COLLECTOR_DEBUG="false"
 
   stub git "rev-parse --short HEAD : echo 'some-commit-id'"
-  stub curl "-X POST --silent --show-error --max-time 30 --form format=junit --form data=\"@./tests/fixtures/junit-1.xml\" --form run_env[CI]=buildkite --form run_env[key]=an-id --form run_env[url]=https://url.com/ --form run_env[branch]=a-branch --form run_env[commit_sha]=a-commit --form run_env[number]=123 --form run_env[job_id]=321 --form run_env[message]=\"A message\" --form run_env[collector]=test-collector-buildkite-plugin --form run_env[version]=some-commit-id https://analytics-api.buildkite.com/v1/uploads -H 'Authorization: Token token=\"a-secret-analytics-token\"' : echo 'curl success'"
+  stub curl "-X POST --silent --show-error --max-time 30 --form format=junit --form data=\"@\\\"./tests/fixtures/junit-1.xml\\\"\" --form run_env[CI]=buildkite --form run_env[key]=an-id --form run_env[url]=https://url.com/ --form run_env[branch]=a-branch --form run_env[commit_sha]=a-commit --form run_env[number]=123 --form run_env[job_id]=321 --form run_env[message]=\"A message\" --form run_env[collector]=test-collector-buildkite-plugin --form run_env[version]=some-commit-id https://analytics-api.buildkite.com/v1/uploads -H 'Authorization: Token token=\"a-secret-analytics-token\"' : echo 'curl success'"
 
   run "$PWD/hooks/pre-exit"
 
@@ -107,7 +107,7 @@ setup() {
   export BUILDKITE_PLUGIN_TEST_COLLECTOR_TIMEOUT='999'
 
   stub git "rev-parse --short HEAD : echo 'some-commit-id'"
-  stub curl "-X POST --silent --show-error --max-time 999 --form format=junit --form data=\"@./tests/fixtures/junit-1.xml\" --form run_env[CI]=buildkite --form run_env[key]=an-id --form run_env[url]=https://url.com/ --form run_env[branch]=a-branch --form run_env[commit_sha]=a-commit --form run_env[number]=123 --form run_env[job_id]=321 --form run_env[message]=\"A message\" --form run_env[collector]=test-collector-buildkite-plugin --form run_env[version]=some-commit-id https://analytics-api.buildkite.com/v1/uploads -H 'Authorization: Token token=\"a-secret-analytics-token\"' : echo 'curl success'"
+  stub curl "-X POST --silent --show-error --max-time 999 --form format=junit --form data=\"@\\\"./tests/fixtures/junit-1.xml\\\"\" --form run_env[CI]=buildkite --form run_env[key]=an-id --form run_env[url]=https://url.com/ --form run_env[branch]=a-branch --form run_env[commit_sha]=a-commit --form run_env[number]=123 --form run_env[job_id]=321 --form run_env[message]=\"A message\" --form run_env[collector]=test-collector-buildkite-plugin --form run_env[version]=some-commit-id https://analytics-api.buildkite.com/v1/uploads -H 'Authorization: Token token=\"a-secret-analytics-token\"' : echo 'curl success'"
 
   run "$PWD/hooks/pre-exit"
 
@@ -120,7 +120,7 @@ setup() {
 
 @test "Git unavailable sends no plugin version" {
   stub git "rev-parse --short HEAD : echo 'git error' >&2; exit 1"
-  stub curl "-X POST --silent --show-error --max-time 30 --form format=junit --form data=\"@./tests/fixtures/junit-1.xml\" --form run_env[CI]=buildkite --form run_env[key]=an-id --form run_env[url]=https://url.com/ --form run_env[branch]=a-branch --form run_env[commit_sha]=a-commit --form run_env[number]=123 --form run_env[job_id]=321 --form run_env[message]=\"A message\" --form run_env[collector]=test-collector-buildkite-plugin https://analytics-api.buildkite.com/v1/uploads -H 'Authorization: Token token=\"a-secret-analytics-token\"' : echo 'curl success'"
+  stub curl "-X POST --silent --show-error --max-time 30 --form format=junit --form data=\"@\\\"./tests/fixtures/junit-1.xml\\\"\" --form run_env[CI]=buildkite --form run_env[key]=an-id --form run_env[url]=https://url.com/ --form run_env[branch]=a-branch --form run_env[commit_sha]=a-commit --form run_env[number]=123 --form run_env[job_id]=321 --form run_env[message]=\"A message\" --form run_env[collector]=test-collector-buildkite-plugin https://analytics-api.buildkite.com/v1/uploads -H 'Authorization: Token token=\"a-secret-analytics-token\"' : echo 'curl success'"
 
   run "$PWD/hooks/pre-exit"
 
