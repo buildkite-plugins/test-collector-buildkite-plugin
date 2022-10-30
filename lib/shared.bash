@@ -1,6 +1,25 @@
 #!/bin/bash
 set -euo pipefail
 
+TOKEN_ENV_NAME="${BUILDKITE_PLUGIN_TEST_COLLECTOR_API_TOKEN_ENV_NAME:-BUILDKITE_ANALYTICS_TOKEN}"
+
+FILES_PATTERN="${BUILDKITE_PLUGIN_TEST_COLLECTOR_FILES:-}"
+
+FORMAT="${BUILDKITE_PLUGIN_TEST_COLLECTOR_FORMAT:-}"
+
+TIMEOUT="${BUILDKITE_PLUGIN_TEST_COLLECTOR_TIMEOUT:-30}"
+
+DEBUG="false"
+
+if [[ "${BUILDKITE_PLUGIN_TEST_COLLECTOR_DEBUG:-}" =~ ^(true|on|1|always)$ ]]; then
+  DEBUG="true"
+elif [[ "${BUILDKITE_ANALYTICS_DEBUG_ENABLED:-}" =~ ^(true|on|1|always)$ ]]; then
+  DEBUG="true"
+fi
+
+TOKEN_VALUE=$(eval "echo \${$TOKEN_ENV_NAME:-}")
+PLUGIN_VERSION=$(git rev-parse --short HEAD 2>/dev/null || echo "")
+
 # Uploads files to the Test Analytics API
 #
 # Upload failures should not fail the build, and should have a sensible timeout,
@@ -49,53 +68,32 @@ upload() {
   curl "${curl_args[@]}" || true
 }
 
-run() {
-    TOKEN_ENV_NAME="${BUILDKITE_PLUGIN_TEST_COLLECTOR_API_TOKEN_ENV_NAME:-BUILDKITE_ANALYTICS_TOKEN}"
+if [[ -z "${TOKEN_VALUE}" ]]; then
+  echo "Missing $TOKEN_ENV_NAME environment variable"
+  exit 1
+fi
 
-    FILES_PATTERN="${BUILDKITE_PLUGIN_TEST_COLLECTOR_FILES:-}"
+if [[ -z "${FILES_PATTERN}" ]]; then
+  echo "Missing file upload pattern 'files', e.g. 'junit-*.xml'"
+  exit 1
+fi
 
-    FORMAT="${BUILDKITE_PLUGIN_TEST_COLLECTOR_FORMAT:-}"
+if [[ -z "${FORMAT}" ]]; then
+  echo "Missing file format 'format'. Possible values: 'junit', 'json'"
+  exit 1
+fi
 
-    TIMEOUT="${BUILDKITE_PLUGIN_TEST_COLLECTOR_TIMEOUT:-30}"
+matching_files=()
+while IFS=$'' read -r matching_file ; do
+  matching_files+=("$matching_file")
+done < <(find . -path "./${FILES_PATTERN}")
 
-    DEBUG="false"
+if [[ "${#matching_files[@]}" -eq "0" ]]; then
+  echo "No files found matching '${FILES_PATTERN}'"
+  exit 1
+fi
 
-    if [[ "${BUILDKITE_PLUGIN_TEST_COLLECTOR_DEBUG:-}" =~ ^(true|on|1|always)$ ]]; then
-      DEBUG="true"
-    elif [[ "${BUILDKITE_ANALYTICS_DEBUG_ENABLED:-}" =~ ^(true|on|1|always)$ ]]; then
-      DEBUG="true"
-    fi
-
-    TOKEN_VALUE=$(eval "echo \${$TOKEN_ENV_NAME:-}")
-    PLUGIN_VERSION=$(git rev-parse --short HEAD 2>/dev/null || echo "")
-
-    if [[ -z "${TOKEN_VALUE}" ]]; then
-      echo "Missing $TOKEN_ENV_NAME environment variable"
-      exit 1
-    fi
-
-    if [[ -z "${FILES_PATTERN}" ]]; then
-      echo "Missing file upload pattern 'files', e.g. 'junit-*.xml'"
-      exit 1
-    fi
-
-    if [[ -z "${FORMAT}" ]]; then
-      echo "Missing file format 'format'. Possible values: 'junit', 'json'"
-      exit 1
-    fi
-
-    matching_files=()
-    while IFS=$'' read -r matching_file ; do
-      matching_files+=("$matching_file")
-    done < <(find . -path "./${FILES_PATTERN}")
-
-    if [[ "${#matching_files[@]}" -eq "0" ]]; then
-      echo "No files found matching '${FILES_PATTERN}'"
-      exit 1
-    fi
-
-    for file in "${matching_files[@]}"; do
-      echo "Uploading '$file'..."
-      upload "$TOKEN_VALUE" "$FORMAT" "${file}"
-    done
-}
+for file in "${matching_files[@]}"; do
+  echo "Uploading '$file'..."
+  upload "$TOKEN_VALUE" "$FORMAT" "${file}"
+done
