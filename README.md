@@ -55,9 +55,7 @@ steps:
 
 ## Properties
 
-* `files` — Required — String — Pattern of files to upload to Test Analytics.  May contain `*` which matches on any
-  number of characters of any type.  Note that `/` and `.` are not treated specially.  The pattern will be prepended
-  with `./` and searching will start from the root of the checkout.
+* `files` — Required — String — Pattern of files to upload to Test Analytics, relative to the checkout path (`./` will be added to it). May contain `*` to match any number of characters of any type (unlike shell expansions, it will match `/` and `.` if necessary)
 * `format` — Required — String — Format of the file. Possible values: `"junit"`, `"json"`
 * `api-token-env-name` — Optional — String — Name of the environment variable that contains the Test Analytics API token. Default value: `"BUILDKITE_ANALYTICS_TOKEN"`
 * `timeout` — Optional — Number — Maximum number of seconds to wait for each file to upload before timing out. Default value: `30`
