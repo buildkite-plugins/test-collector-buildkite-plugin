@@ -88,9 +88,9 @@ while IFS=$'' read -r matching_file ; do
   matching_files+=("$matching_file")
 done < <(find . -path "./${FILES_PATTERN}")
 
-if [[ -z "${BUILDKITE_COMMAND_EXIT_STATUS+x}" ]] || [[ "${BUILDKITE_COMMAND_EXIT_STATUS}" -eq "0" ]]; then
-  if [[ "${#matching_files[@]}" -eq "0" ]]; then
-    echo "No files found matching '${FILES_PATTERN}'"
+if [[ "${#matching_files[@]}" -eq "0" ]]; then
+  echo "No files found matching '${FILES_PATTERN}'"
+  if [[ -z "${BUILDKITE_COMMAND_EXIT_STATUS+x}" ]] || [[ "${BUILDKITE_COMMAND_EXIT_STATUS}" -eq "0" ]]; then
     exit 1
   fi
 fi
