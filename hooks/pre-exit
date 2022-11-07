@@ -90,7 +90,9 @@ done < <(find . -path "./${FILES_PATTERN}")
 
 if [[ "${#matching_files[@]}" -eq "0" ]]; then
   echo "No files found matching '${FILES_PATTERN}'"
-  exit 1
+  if [[ -z "${BUILDKITE_COMMAND_EXIT_STATUS+x}" ]] || [[ "${BUILDKITE_COMMAND_EXIT_STATUS}" -eq "0" ]]; then
+    exit 1
+  fi
 fi
 
 for file in "${matching_files[@]}"; do
