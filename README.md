@@ -13,7 +13,7 @@ steps:
   - label: "🔨 Test"
     command: "make test"
     plugins:
-      - test-collector#v1.0.0:
+      - test-collector#v1.2.0:
           files: "test/junit-*.xml"
           format: "junit"
 ```
@@ -27,7 +27,7 @@ steps:
   - label: "🔨 Test"
     command: "make test"
     plugins:
-      - test-collector#v1.0.0:
+      - test-collector#v1.2.0:
           files: "test-data-*.json"
           format: "json"
 ```
