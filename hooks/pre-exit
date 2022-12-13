@@ -34,7 +34,7 @@ PLUGIN_VERSION=$(git rev-parse --short HEAD 2>/dev/null || echo "")
 # TODO: Add build annotation on failure
 upload() {
 
-  if [[ "$DEBUG" == "true" ]]; then
+  if [[ "$SKIP" == "true" ]]; then
     echo "skipping test-collector plugin"
     return 0
   fi
