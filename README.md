@@ -60,6 +60,7 @@ steps:
 * `api-token-env-name` — Optional — String — Name of the environment variable that contains the Test Analytics API token. Default value: `"BUILDKITE_ANALYTICS_TOKEN"`
 * `timeout` — Optional — Number — Maximum number of seconds to wait for each file to upload before timing out. Default value: `30`
 * `debug` — Optional — Boolean — Print debug information to the build output. Default value: `false`. Can also be enabled with the environment variable `BUILDKITE_ANALYTICS_DEBUG_ENABLED`.
+* `skip` — Optional — Boolean — Skips uploading files to buildkite analytics. Default value: `false`.
 
 <!-- * `artifact` — Optional — Boolean — Search for the files as build artifacts. Default value: `false` -->
 

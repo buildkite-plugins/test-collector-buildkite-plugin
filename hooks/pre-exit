@@ -11,10 +11,16 @@ TIMEOUT="${BUILDKITE_PLUGIN_TEST_COLLECTOR_TIMEOUT:-30}"
 
 DEBUG="false"
 
+SKIP="false"
+
 if [[ "${BUILDKITE_PLUGIN_TEST_COLLECTOR_DEBUG:-}" =~ ^(true|on|1|always)$ ]]; then
   DEBUG="true"
 elif [[ "${BUILDKITE_ANALYTICS_DEBUG_ENABLED:-}" =~ ^(true|on|1|always)$ ]]; then
   DEBUG="true"
+fi
+
+if [[ "${BUILDKITE_PLUGIN_TEST_COLLECTOR_SKIP:-}" =~ ^(true|on|1|always)$ ]]; then
+  SKIP="true"
 fi
 
 TOKEN_VALUE=$(eval "echo \${$TOKEN_ENV_NAME:-}")
@@ -27,6 +33,12 @@ PLUGIN_VERSION=$(git rev-parse --short HEAD 2>/dev/null || echo "")
 #
 # TODO: Add build annotation on failure
 upload() {
+
+  if [[ "$DEBUG" == "true" ]]; then
+    echo "skipping test-collector plugin"
+    return 0
+  fi
+
   local file="$3"
 
   local curl_args=(
