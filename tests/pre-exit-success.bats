@@ -36,6 +36,15 @@ setup() {
   assert_output --partial "curl success"
 }
 
+@test "Skips uploading files" {
+  export BUILDKITE_PLUGIN_TEST_COLLECTOR_SKIP="true"
+
+  run "$PWD/hooks/pre-exit"
+
+  assert_success
+  assert_output --partial "skipping test-collector plugin"
+}
+
 @test "Uploads multiple file" {
   export BUILDKITE_PLUGIN_TEST_COLLECTOR_FILES='**/*/junit-*.xml'
 
