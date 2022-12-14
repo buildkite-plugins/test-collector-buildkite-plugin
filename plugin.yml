@@ -6,16 +6,16 @@ requirements:
   - curl
 configuration:
   properties:
+    api-token-env-name:
+      type: string
+    debug:
+      type: boolean
     files:
       type: string
     format:
       enum:
         - json
         - junit
-    api-token-env-name:
-      type: string
-    debug:
-      type: boolean
     timeout:
       type: integer
   required:
