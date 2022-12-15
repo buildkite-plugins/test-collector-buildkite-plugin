@@ -6,7 +6,7 @@ A Buildkite plugin for uploading [JSON](https://buildkite.com/docs/test-analytic
 
 ### Upload a JUnit file
 
-To upload a JSON file to Test Analytics from a build step:
+To upload a JUnit file to Test Analytics from a build step:
 
 ```yaml
 steps:
