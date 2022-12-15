@@ -8,8 +8,12 @@ configuration:
   properties:
     api-token-env-name:
       type: string
+    branches:
+      type: string
     debug:
       type: boolean
+    exclude-branches:
+      type: string
     files:
       type: string
     format:

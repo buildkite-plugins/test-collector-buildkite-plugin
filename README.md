@@ -26,6 +26,17 @@ Name of the environment variable that contains the Test Analytics API token.
 
 Default value: `BUILDKITE_ANALYTICS_TOKEN`
 
+#### `branches` (string)
+
+String containing a regex to only do an upload in branches that match it (using the case-insensitive bash `=~` operator against the `BUILDKITE_BRANCH` environment variable).
+
+For example:
+* `prod` will match any branch name that **contains the substring** `prod`
+* `^stage-` will match all branches that start with `stage-`
+* `-ISSUE-[0-9]*$` will match branches that end with `ISSUE-X` (where X is any number)
+
+Important: you may have to be careful to escape special characters like `$` during pipeline upload
+
 #### `debug` (boolean)
 
 Print debug information to the build output.
@@ -33,6 +44,19 @@ Print debug information to the build output.
 Default value: `false`.
 
 Can also be enabled with the environment variable `BUILDKITE_ANALYTICS_DEBUG_ENABLED`.
+
+#### `exclude-branches` (string)
+
+String containing a regex avoid doing an upload in branches that match it (using the case-insensitive bash `=~` operator against the `BUILDKITE_BRANCH` environment variable ).
+
+For example:
+* `prod` will exclude any branch name that **contains the substring** `prod`
+* `^stage-` will exclude all branches that start with `stage-`
+* `-SECURITY-[0-9]*$` will exclude branches that end with `SECURITY-X` (where X is any number)
+
+Important:
+* you may have to be careful to escape special characters like `$` during pipeline upload
+* exclusion of branches is done after the inclusion (through the [`branches` option](#branches-string))
 
 #### `timeout`(number)
 
@@ -90,6 +114,49 @@ steps:
           files: "tests-*.xml"
           format: "junit"
 ```
+
+### Branch filtering
+
+Only upload on the branches that end with `-qa`
+
+```yaml
+steps:
+  - label: "🔨 Test"
+    command: "make test"
+    plugins:
+      - test-collector#v1.2.0:
+          files: "test-data-*.json"
+          format: "json"
+          branches: "-qa$"
+```
+
+Do not upload on the branch that is exactly named `legacy`:
+
+```yaml
+steps:
+  - label: "🔨 Test"
+    command: "make test"
+    plugins:
+      - test-collector#v1.2.0:
+          files: "test-data-*.json"
+          format: "json"
+          exclude-branches: "^legacy$"
+```
+
+Only upload on branches that start with `stage-` but do not contain `hotfix`
+
+```yaml
+steps:
+  - label: "🔨 Test"
+    command: "make test"
+    plugins:
+      - test-collector#v1.2.0:
+          files: "test-data-*.json"
+          format: "json"
+          branches: "^stage-"
+          exclude-branches: "hotfix"
+```
+
 
 ## ⚒ Developing
 
