@@ -2,7 +2,6 @@ name: Test Collector
 description: Uploads your JSON or JUnit files to Buildkite Test Analytics
 author: https://github.com/buildkite
 requirements:
-  - docker
   - curl
 configuration:
   properties:
