@@ -17,6 +17,20 @@ elif [[ "${BUILDKITE_ANALYTICS_DEBUG_ENABLED:-}" =~ ^(true|on|1|always)$ ]]; the
   DEBUG="true"
 fi
 
+if [[ -n "${BUILDKITE_PLUGIN_TEST_COLLECTOR_BRANCHES:-}" ]]; then
+  if [[ ! "${BUILDKITE_BRANCH}" =~ ${BUILDKITE_PLUGIN_TEST_COLLECTOR_BRANCHES} ]]; then
+    echo "Branch ${BUILDKITE_BRANCH} does not match selector ${BUILDKITE_PLUGIN_TEST_COLLECTOR_BRANCHES}. Skipping it."
+    exit 0
+  fi
+fi
+
+if [[ -n "${BUILDKITE_PLUGIN_TEST_COLLECTOR_EXCLUDE_BRANCHES:-}" ]]; then
+  if [[ "${BUILDKITE_BRANCH}" =~ ${BUILDKITE_PLUGIN_TEST_COLLECTOR_EXCLUDE_BRANCHES} ]]; then
+    echo "Branch ${BUILDKITE_BRANCH} matches exclude selector ${BUILDKITE_PLUGIN_TEST_COLLECTOR_EXCLUDE_BRANCHES}. Skipping it."
+    exit 0
+  fi
+fi
+
 TOKEN_VALUE=$(eval "echo \${$TOKEN_ENV_NAME:-}")
 PLUGIN_VERSION=$(git rev-parse --short HEAD 2>/dev/null || echo "")
 

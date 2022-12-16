@@ -2,7 +2,69 @@
 
 A Buildkite plugin for uploading [JSON](https://buildkite.com/docs/test-analytics/importing-json) or [JUnit](https://buildkite.com/docs/test-analytics/importing-junit-xml) files to [Buildkite Test Analytics](https://buildkite.com/test-analytics) ✨
 
-## Example
+## Options
+
+These are all the options available to configure this plugin's behaviour.
+
+### Required
+
+#### `files` (string)
+
+Pattern of files to upload to Test Analytics, relative to the checkout path (`./` will be added to it). May contain `*` to match any number of characters of any type (unlike shell expansions, it will match `/` and `.` if necessary)
+
+#### `format` (string)
+
+Format of the file.
+
+Only the following values are allowed: `junit`, `json`
+
+### Optional
+
+#### `api-token-env-name` (string)
+
+Name of the environment variable that contains the Test Analytics API token.
+
+Default value: `BUILDKITE_ANALYTICS_TOKEN`
+
+#### `branches` (string)
+
+String containing a regex to only do an upload in branches that match it (using the case-insensitive bash `=~` operator against the `BUILDKITE_BRANCH` environment variable).
+
+For example:
+* `prod` will match any branch name that **contains the substring** `prod`
+* `^stage-` will match all branches that start with `stage-`
+* `-ISSUE-[0-9]*$` will match branches that end with `ISSUE-X` (where X is any number)
+
+Important: you may have to be careful to escape special characters like `$` during pipeline upload
+
+#### `debug` (boolean)
+
+Print debug information to the build output.
+
+Default value: `false`.
+
+Can also be enabled with the environment variable `BUILDKITE_ANALYTICS_DEBUG_ENABLED`.
+
+#### `exclude-branches` (string)
+
+String containing a regex avoid doing an upload in branches that match it (using the case-insensitive bash `=~` operator against the `BUILDKITE_BRANCH` environment variable ).
+
+For example:
+* `prod` will exclude any branch name that **contains the substring** `prod`
+* `^stage-` will exclude all branches that start with `stage-`
+* `-SECURITY-[0-9]*$` will exclude branches that end with `SECURITY-X` (where X is any number)
+
+Important:
+* you may have to be careful to escape special characters like `$` during pipeline upload
+* exclusion of branches is done after the inclusion (through the [`branches` option](#branches-string))
+
+#### `timeout`(number)
+
+Maximum number of seconds to wait for each file to upload before timing out.
+
+Default value: `30`
+
+## Examples
 
 ### Upload a JUnit file
 
@@ -32,9 +94,9 @@ steps:
           format: "json"
 ```
 
-<!-- ### Upload a build artifact
+### Using build artifacts
 
-You can also upload build artifact that was generated in a previous step:
+You can also use build artifacts generated in a previous step:
 
 ```yaml
 steps:
@@ -45,23 +107,56 @@ steps:
 
   - wait
 
-  - label: "🔍 Upload tests"
+  - label: "🔍 Test Analytics"
+    command: buildkite-agent artifact download tests-*.xml
     plugins:
-      - buildkite/test-collector#main:
+      - test-collector#v1.2.0:
           files: "tests-*.xml"
           format: "junit"
-          artifact: true
-``` -->
+```
 
-## Properties
+### Branch filtering
 
-* `files` — Required — String — Pattern of files to upload to Test Analytics, relative to the checkout path (`./` will be added to it). May contain `*` to match any number of characters of any type (unlike shell expansions, it will match `/` and `.` if necessary)
-* `format` — Required — String — Format of the file. Possible values: `"junit"`, `"json"`
-* `api-token-env-name` — Optional — String — Name of the environment variable that contains the Test Analytics API token. Default value: `"BUILDKITE_ANALYTICS_TOKEN"`
-* `timeout` — Optional — Number — Maximum number of seconds to wait for each file to upload before timing out. Default value: `30`
-* `debug` — Optional — Boolean — Print debug information to the build output. Default value: `false`. Can also be enabled with the environment variable `BUILDKITE_ANALYTICS_DEBUG_ENABLED`.
+Only upload on the branches that end with `-qa`
 
-<!-- * `artifact` — Optional — Boolean — Search for the files as build artifacts. Default value: `false` -->
+```yaml
+steps:
+  - label: "🔨 Test"
+    command: "make test"
+    plugins:
+      - test-collector#v1.2.0:
+          files: "test-data-*.json"
+          format: "json"
+          branches: "-qa$"
+```
+
+Do not upload on the branch that is exactly named `legacy`:
+
+```yaml
+steps:
+  - label: "🔨 Test"
+    command: "make test"
+    plugins:
+      - test-collector#v1.2.0:
+          files: "test-data-*.json"
+          format: "json"
+          exclude-branches: "^legacy$"
+```
+
+Only upload on branches that start with `stage-` but do not contain `hotfix`
+
+```yaml
+steps:
+  - label: "🔨 Test"
+    command: "make test"
+    plugins:
+      - test-collector#v1.2.0:
+          files: "test-data-*.json"
+          format: "json"
+          branches: "^stage-"
+          exclude-branches: "hotfix"
+```
+
 
 ## ⚒ Developing
 
