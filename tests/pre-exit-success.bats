@@ -57,7 +57,7 @@ COMMON_CURL_OPTIONS='--form \* --form \* --form \* --form \* --form \* --form \*
 @test "Debug true prints the curl info w/o token" {
   export BUILDKITE_PLUGIN_TEST_COLLECTOR_DEBUG="true"
 
-  stub curl "-X POST --silent --show-error --max-time 30 --form format=junit ${COMMON_CURL_OPTIONS} \* -H \* : echo 'curl success'"
+  stub curl "-X POST --silent --show-error --max-time 30 --form format=junit ${COMMON_CURL_OPTIONS} --form \* \* -H \* : echo \"curl success with \${30}\""
 
   run "$PWD/hooks/pre-exit"
 
@@ -72,7 +72,7 @@ COMMON_CURL_OPTIONS='--form \* --form \* --form \* --form \* --form \* --form \*
 @test "Debug env var true prints the curl info w/o token" {
   export BUILDKITE_ANALYTICS_DEBUG_ENABLED="true"
 
-  stub curl "-X POST --silent --show-error --max-time 30 --form format=junit ${COMMON_CURL_OPTIONS} \* -H \* : echo 'curl success'"
+  stub curl "-X POST --silent --show-error --max-time 30 --form format=junit ${COMMON_CURL_OPTIONS} --form \* \* -H \* : echo \"curl success with  with \${30}\""
 
   run "$PWD/hooks/pre-exit"
 
