@@ -122,3 +122,33 @@ COMMON_CURL_OPTIONS='--form \* --form \* --form \* --form \* --form \* --form \*
   assert_output --partial "curl success"
   assert_output --partial "run_env[version]=some-commit-id"
 }
+
+@test "Follow links option enabled adds find option" {
+  export BUILDKITE_PLUGIN_TEST_COLLECTOR_FOLLOW_LINKS='true'
+
+  stub find "-L . -path \* : echo './tests/fixtures/junit-1.xml'"
+  stub curl "-X POST --silent --show-error --max-time 30 --form format=junit ${COMMON_CURL_OPTIONS} \* -H \* : echo 'curl success'"
+
+  run "$PWD/hooks/pre-exit"
+
+  unstub curl
+  unstub find
+
+  assert_success
+  assert_output --partial "curl success"
+}
+
+@test "Follow links option disabled does not add find option" {
+  export BUILDKITE_PLUGIN_TEST_COLLECTOR_FOLLOW_LINKS='false'
+
+  stub find ". -path \* : echo './tests/fixtures/junit-1.xml'"
+  stub curl "-X POST --silent --show-error --max-time 30 --form format=junit ${COMMON_CURL_OPTIONS} \* -H \* : echo 'curl success'"
+
+  run "$PWD/hooks/pre-exit"
+
+  unstub curl
+  unstub find
+
+  assert_success
+  assert_output --partial "curl success"
+}
