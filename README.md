@@ -10,7 +10,7 @@ These are all the options available to configure this plugin's behaviour.
 
 #### `files` (string)
 
-Pattern of files to upload to Test Analytics, relative to the checkout path (`./` will be added to it). May contain `*` to match any number of characters of any type (unlike shell expansions, it will match `/` and `.` if necessary)
+Pattern of files to upload to Test Analytics, relative to the checkout path (`./` will be added to it). May contain `*` to match any number of characters of any type (unlike shell expansions, it will match `/` and `.` if necessary).
 
 #### `format` (string)
 
@@ -57,6 +57,10 @@ For example:
 Important:
 * you may have to be careful to escape special characters like `$` during pipeline upload
 * exclusion of branches is done after the inclusion (through the [`branches` option](#branches-string))
+
+#### `follow-symlinks` (boolean)
+
+By default the plugin will not follow symlinked folders, set this option to `true` to do so. This will add the `-L` option to the `find` command used to get the files to upload.
 
 #### `timeout`(number)
 
