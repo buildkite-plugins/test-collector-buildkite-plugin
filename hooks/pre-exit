@@ -2,13 +2,9 @@
 set -euo pipefail
 
 TOKEN_ENV_NAME="${BUILDKITE_PLUGIN_TEST_COLLECTOR_API_TOKEN_ENV_NAME:-BUILDKITE_ANALYTICS_TOKEN}"
-
 FILES_PATTERN="${BUILDKITE_PLUGIN_TEST_COLLECTOR_FILES:-}"
-
 FORMAT="${BUILDKITE_PLUGIN_TEST_COLLECTOR_FORMAT:-}"
-
 TIMEOUT="${BUILDKITE_PLUGIN_TEST_COLLECTOR_TIMEOUT:-30}"
-
 DEBUG="false"
 
 if [[ "${BUILDKITE_PLUGIN_TEST_COLLECTOR_DEBUG:-}" =~ ^(true|on|1|always)$ ]]; then
@@ -31,24 +27,23 @@ if [[ -n "${BUILDKITE_PLUGIN_TEST_COLLECTOR_EXCLUDE_BRANCHES:-}" ]]; then
   fi
 fi
 
-TOKEN_VALUE=$(eval "echo \${$TOKEN_ENV_NAME:-}")
+TOKEN_VALUE="${!TOKEN_ENV_NAME:-}"
 PLUGIN_VERSION=$(git rev-parse --short HEAD 2>/dev/null || echo "")
 
 # Uploads files to the Test Analytics API
 #
 # Upload failures should not fail the build, and should have a sensible timeout,
 # so that Test Analytics availability doesn't affect build reliability.
-#
-# TODO: Add build annotation on failure
 upload() {
   local file="$3"
+  local format="$2"
 
   local curl_args=(
     "-X" "POST"
     "--silent"
     "--show-error"
-    "--max-time" "$TIMEOUT"
-    "--form" "format=$FORMAT"
+    "--max-time" "${TIMEOUT}"
+    "--form" "format=${format}"
     "--form" "data=@\"$file\""
     "--form" "run_env[CI]=buildkite"
     "--form" "run_env[key]=$BUILDKITE_BUILD_ID"
@@ -79,7 +74,7 @@ upload() {
 
   curl_args+=("-H" "Authorization: Token token=\"$TOKEN_VALUE\"")
 
-  curl "${curl_args[@]}" || true
+  curl "${curl_args[@]}"
 }
 
 if [[ -z "${TOKEN_VALUE}" ]]; then
@@ -97,10 +92,16 @@ if [[ -z "${FORMAT}" ]]; then
   exit 1
 fi
 
+FIND_CMD=(find)
+
+if [[ "${BUILDKITE_PLUGIN_TEST_COLLECTOR_FOLLOW_LINKS:-}" =~ ^(true|on|1|always)$ ]]; then
+  FIND_CMD+=('-L')
+fi
+
 matching_files=()
 while IFS=$'' read -r matching_file ; do
   matching_files+=("$matching_file")
-done < <(find . -path "./${FILES_PATTERN}")
+done < <("${FIND_CMD[@]}" . -path "./${FILES_PATTERN}")
 
 if [[ "${#matching_files[@]}" -eq "0" ]]; then
   echo "No files found matching '${FILES_PATTERN}'"
@@ -111,5 +112,7 @@ fi
 
 for file in "${matching_files[@]}"; do
   echo "Uploading '$file'..."
-  upload "$TOKEN_VALUE" "$FORMAT" "${file}"
+  if ! upload "$TOKEN_VALUE" "$FORMAT" "${file}"; then
+    echo "Error uploading, will continue"
+  fi
 done

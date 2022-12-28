@@ -10,7 +10,7 @@ These are all the options available to configure this plugin's behaviour.
 
 #### `files` (string)
 
-Pattern of files to upload to Test Analytics, relative to the checkout path (`./` will be added to it). May contain `*` to match any number of characters of any type (unlike shell expansions, it will match `/` and `.` if necessary)
+Pattern of files to upload to Test Analytics, relative to the checkout path (`./` will be added to it). May contain `*` to match any number of characters of any type (unlike shell expansions, it will match `/` and `.` if necessary).
 
 #### `format` (string)
 
@@ -58,6 +58,10 @@ Important:
 * you may have to be careful to escape special characters like `$` during pipeline upload
 * exclusion of branches is done after the inclusion (through the [`branches` option](#branches-string))
 
+#### `follow-symlinks` (boolean)
+
+By default the plugin will not follow symlinked folders, set this option to `true` to do so. This will add the `-L` option to the `find` command used to get the files to upload.
+
 #### `timeout`(number)
 
 Maximum number of seconds to wait for each file to upload before timing out.
@@ -75,7 +79,7 @@ steps:
   - label: "🔨 Test"
     command: "make test"
     plugins:
-      - test-collector#v1.2.0:
+      - test-collector#v1.4.0:
           files: "test/junit-*.xml"
           format: "junit"
 ```
@@ -89,7 +93,7 @@ steps:
   - label: "🔨 Test"
     command: "make test"
     plugins:
-      - test-collector#v1.2.0:
+      - test-collector#v1.4.0:
           files: "test-data-*.json"
           format: "json"
 ```
@@ -110,7 +114,7 @@ steps:
   - label: "🔍 Test Analytics"
     command: buildkite-agent artifact download tests-*.xml
     plugins:
-      - test-collector#v1.2.0:
+      - test-collector#v1.4.0:
           files: "tests-*.xml"
           format: "junit"
 ```
@@ -124,7 +128,7 @@ steps:
   - label: "🔨 Test"
     command: "make test"
     plugins:
-      - test-collector#v1.2.0:
+      - test-collector#v1.4.0:
           files: "test-data-*.json"
           format: "json"
           branches: "-qa$"
@@ -137,7 +141,7 @@ steps:
   - label: "🔨 Test"
     command: "make test"
     plugins:
-      - test-collector#v1.2.0:
+      - test-collector#v1.4.0:
           files: "test-data-*.json"
           format: "json"
           exclude-branches: "^legacy$"
@@ -150,7 +154,7 @@ steps:
   - label: "🔨 Test"
     command: "make test"
     plugins:
-      - test-collector#v1.2.0:
+      - test-collector#v1.4.0:
           files: "test-data-*.json"
           format: "json"
           branches: "^stage-"
