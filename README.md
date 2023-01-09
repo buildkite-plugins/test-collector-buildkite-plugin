@@ -26,6 +26,10 @@ Name of the environment variable that contains the Test Analytics API token.
 
 Default value: `BUILDKITE_ANALYTICS_TOKEN`
 
+#### `api-url` (string)
+
+Full URL for the API to upload to. Defaults to `https://analytics-api.buildkite.com/v1/uploads`
+
 #### `branches` (string)
 
 String containing a regex to only do an upload in branches that match it (using the case-insensitive bash `=~` operator against the `BUILDKITE_BRANCH` environment variable).
