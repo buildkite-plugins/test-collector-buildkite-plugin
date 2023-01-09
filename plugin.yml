@@ -7,6 +7,8 @@ configuration:
   properties:
     api-token-env-name:
       type: string
+    api-url:
+      type: string
     branches:
       type: string
     debug:
