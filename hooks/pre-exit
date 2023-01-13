@@ -105,7 +105,7 @@ done < <("${FIND_CMD[@]}" . -path "./${FILES_PATTERN}")
 
 if [[ "${#matching_files[@]}" -eq "0" ]]; then
   echo "No files found matching '${FILES_PATTERN}'"
-  if [[ -z "${BUILDKITE_COMMAND_EXIT_STATUS+x}" ]] || [[ "${BUILDKITE_COMMAND_EXIT_STATUS}" -eq "0" ]]; then
+  if [[ "${BUILDKITE_COMMAND_EXIT_STATUS:-0}" -eq "0" ]]; then
     exit 1
   fi
 else
