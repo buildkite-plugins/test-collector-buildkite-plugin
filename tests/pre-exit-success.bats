@@ -152,3 +152,18 @@ COMMON_CURL_OPTIONS='--form \* --form \* --form \* --form \* --form \* --form \*
   assert_success
   assert_output --partial "curl success"
 }
+
+@test "API can change" {
+  export BUILDKITE_PLUGIN_TEST_COLLECTOR_API_URL='https://test-api.example.com/v2'
+
+  stub curl "-X POST --silent --show-error --max-time 30 --form format=junit ${COMMON_CURL_OPTIONS} \* -H \* : echo \"curl success against \${29}\""
+
+  run "$PWD/hooks/pre-exit"
+
+  assert_success
+  assert_output --partial "Uploading './tests/fixtures/junit-1.xml'..."
+  assert_output --partial "curl success"
+  assert_output --partial "against https://test-api.example.com/v2"
+
+  unstub curl
+}

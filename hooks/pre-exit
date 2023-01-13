@@ -64,7 +64,7 @@ upload() {
     curl_args+=("--form" "run_env[version]=$PLUGIN_VERSION")
   fi
 
-  curl_args+=("https://analytics-api.buildkite.com/v1/uploads")
+  curl_args+=("${BUILDKITE_PLUGIN_TEST_COLLECTOR_API_URL:-https://analytics-api.buildkite.com/v1/uploads}")
 
   # Print debugging output before we add the token, so it doesn't ever get
   # printed to output
