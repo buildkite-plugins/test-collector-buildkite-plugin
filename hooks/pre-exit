@@ -108,11 +108,12 @@ if [[ "${#matching_files[@]}" -eq "0" ]]; then
   if [[ -z "${BUILDKITE_COMMAND_EXIT_STATUS+x}" ]] || [[ "${BUILDKITE_COMMAND_EXIT_STATUS}" -eq "0" ]]; then
     exit 1
   fi
+else
+  # needs to be part of else for bash4.3 compatibility
+  for file in "${matching_files[@]}"; do
+    echo "Uploading '$file'..."
+    if ! upload "$TOKEN_VALUE" "$FORMAT" "${file}"; then
+      echo "Error uploading, will continue"
+    fi
+  done
 fi
-
-for file in "${matching_files[@]}"; do
-  echo "Uploading '$file'..."
-  if ! upload "$TOKEN_VALUE" "$FORMAT" "${file}"; then
-    echo "Error uploading, will continue"
-  fi
-done
