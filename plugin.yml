@@ -9,6 +9,8 @@ configuration:
       type: string
     api-url:
       type: string
+    base-path:
+      type: string
     branches:
       type: string
     debug:
