@@ -167,3 +167,30 @@ COMMON_CURL_OPTIONS='--form \* --form \* --form \* --form \* --form \* --form \*
 
   unstub curl
 }
+
+@test "Base path can be changed" {
+  export BUILDKITE_PLUGIN_TEST_COLLECTOR_BASE_PATH='/test'
+
+  stub find "/test -path /test/\*\*/\*/junit-1.xml : echo '/test/tests/fixtures/junit-1.xml'"
+  stub curl "-X POST --silent --show-error --max-time 30 --form format=junit ${COMMON_CURL_OPTIONS} \* -H \* : echo 'curl success'"
+
+  run "${PWD}/hooks/pre-exit"
+
+  unstub curl
+  unstub find
+
+  assert_success
+  assert_output --partial "curl success"
+}
+
+@test "Absorb curl failures" {
+  stub curl "-X POST --silent --show-error --max-time 30 --form format=junit ${COMMON_CURL_OPTIONS} \* -H \* : exit 10"
+
+  run "$PWD/hooks/pre-exit"
+
+  unstub curl
+
+  assert_success
+  assert_output --partial "Uploading './tests/fixtures/junit-1.xml'..."
+  assert_output --partial "Error uploading, will continue"
+}

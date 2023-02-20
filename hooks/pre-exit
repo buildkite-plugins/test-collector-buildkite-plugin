@@ -5,6 +5,7 @@ TOKEN_ENV_NAME="${BUILDKITE_PLUGIN_TEST_COLLECTOR_API_TOKEN_ENV_NAME:-BUILDKITE_
 FILES_PATTERN="${BUILDKITE_PLUGIN_TEST_COLLECTOR_FILES:-}"
 FORMAT="${BUILDKITE_PLUGIN_TEST_COLLECTOR_FORMAT:-}"
 TIMEOUT="${BUILDKITE_PLUGIN_TEST_COLLECTOR_TIMEOUT:-30}"
+BASE_PATH="${BUILDKITE_PLUGIN_TEST_COLLECTOR_BASE_PATH:-.}"
 DEBUG="false"
 
 if [[ "${BUILDKITE_PLUGIN_TEST_COLLECTOR_DEBUG:-}" =~ ^(true|on|1|always)$ ]]; then
@@ -101,7 +102,7 @@ fi
 matching_files=()
 while IFS=$'' read -r matching_file ; do
   matching_files+=("$matching_file")
-done < <("${FIND_CMD[@]}" . -path "./${FILES_PATTERN}")
+done < <("${FIND_CMD[@]}" "${BASE_PATH}" -path "${BASE_PATH}/${FILES_PATTERN}")
 
 if [[ "${#matching_files[@]}" -eq "0" ]]; then
   echo "No files found matching '${FILES_PATTERN}'"

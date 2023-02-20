@@ -30,6 +30,10 @@ Default value: `BUILDKITE_ANALYTICS_TOKEN`
 
 Full URL for the API to upload to. Defaults to `https://analytics-api.buildkite.com/v1/uploads`
 
+#### `base-path` (string)
+
+Where to search for files to upload. Defaults to the working directory `.`
+
 #### `branches` (string)
 
 String containing a regex to only do an upload in branches that match it (using the case-insensitive bash `=~` operator against the `BUILDKITE_BRANCH` environment variable).
@@ -83,7 +87,7 @@ steps:
   - label: "🔨 Test"
     command: "make test"
     plugins:
-      - test-collector#v1.5.0:
+      - test-collector#v1.6.0:
           files: "test/junit-*.xml"
           format: "junit"
 ```
@@ -97,7 +101,7 @@ steps:
   - label: "🔨 Test"
     command: "make test"
     plugins:
-      - test-collector#v1.5.0:
+      - test-collector#v1.6.0:
           files: "test-data-*.json"
           format: "json"
 ```
@@ -118,7 +122,7 @@ steps:
   - label: "🔍 Test Analytics"
     command: buildkite-agent artifact download tests-*.xml
     plugins:
-      - test-collector#v1.5.0:
+      - test-collector#v1.6.0:
           files: "tests-*.xml"
           format: "junit"
 ```
@@ -132,7 +136,7 @@ steps:
   - label: "🔨 Test"
     command: "make test"
     plugins:
-      - test-collector#v1.5.0:
+      - test-collector#v1.6.0:
           files: "test-data-*.json"
           format: "json"
           branches: "-qa$"
@@ -145,7 +149,7 @@ steps:
   - label: "🔨 Test"
     command: "make test"
     plugins:
-      - test-collector#v1.5.0:
+      - test-collector#v1.6.0:
           files: "test-data-*.json"
           format: "json"
           exclude-branches: "^legacy$"
@@ -158,7 +162,7 @@ steps:
   - label: "🔨 Test"
     command: "make test"
     plugins:
-      - test-collector#v1.5.0:
+      - test-collector#v1.6.0:
           files: "test-data-*.json"
           format: "json"
           branches: "^stage-"
