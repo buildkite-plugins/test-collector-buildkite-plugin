@@ -66,7 +66,7 @@ Important:
 * you may have to be careful to escape special characters like `$` during pipeline upload
 * exclusion of branches is done after the inclusion (through the [`branches` option](#branches-string))
 
-#### `follow-symlinks` (boolean)
+#### `follow-links` (boolean)
 
 By default the plugin will not follow symlinked folders, set this option to `true` to do so. This will add the `-L` option to the `find` command used to get the files to upload.
 
