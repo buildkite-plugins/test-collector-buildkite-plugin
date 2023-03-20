@@ -8,9 +8,9 @@ These are all the options available to configure this plugin's behaviour.
 
 ### Required
 
-#### `files` (string)
+#### `files` (string or array of strings)
 
-Pattern of files to upload to Test Analytics, relative to the checkout path (`./` will be added to it). May contain `*` to match any number of characters of any type (unlike shell expansions, it will match `/` and `.` if necessary).
+One or more patterns of files to upload to Test Analytics, relative to the root of the searching path (`./` by default). May contain `*` to match any number of characters of any type (unlike shell expansions, it will match `/` and `.` if necessary). Can be either a single pattern in a string or any number of them in an array.
 
 #### `format` (string)
 
@@ -102,7 +102,8 @@ steps:
     command: "make test"
     plugins:
       - test-collector#v1.6.0:
-          files: "test-data-*.json"
+          files:
+            - "test-data-*.json"
           format: "json"
 ```
 

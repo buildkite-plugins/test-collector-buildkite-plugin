@@ -18,7 +18,11 @@ configuration:
     exclude-branches:
       type: string
     files:
-      type: string
+      oneOf:
+        - type: string
+        - type: array
+          items:
+            type: string
     follow-symlinks:
       type: boolean
     format:
