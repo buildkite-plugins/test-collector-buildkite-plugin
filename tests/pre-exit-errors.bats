@@ -22,6 +22,7 @@ setup() {
 
 @test "Errors with no 'files' set" {
   export BUILDKITE_ANALYTICS_TOKEN='abc'
+  export BUILDKITE_PLUGIN_TEST_COLLECTOR_FORMAT='junit'
   run "$PWD/hooks/pre-exit"
 
   assert_failure
