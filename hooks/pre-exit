@@ -95,7 +95,7 @@ fi
 
 FIND_CMD=(find)
 
-if [[ "${BUILDKITE_PLUGIN_TEST_COLLECTOR_FOLLOW_LINKS:-}" =~ ^(true|on|1|always)$ ]]; then
+if [[ "${BUILDKITE_PLUGIN_TEST_COLLECTOR_FOLLOW_SYMLINKS:-}" =~ ^(true|on|1|always)$ ]]; then
   FIND_CMD+=('-L')
 fi
 
