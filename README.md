@@ -163,7 +163,7 @@ steps:
   - label: "🔨 Test"
     command: "make test"
     plugins:
-      - test-collector#v1.6.0:
+      - test-collector#v1.7.0:
           files: "test-data-*.json"
           format: "json"
           branches: "^stage-"
