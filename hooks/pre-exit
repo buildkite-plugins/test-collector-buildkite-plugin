@@ -2,7 +2,6 @@
 set -euo pipefail
 
 TOKEN_ENV_NAME="${BUILDKITE_PLUGIN_TEST_COLLECTOR_API_TOKEN_ENV_NAME:-BUILDKITE_ANALYTICS_TOKEN}"
-FILES_PATTERN="${BUILDKITE_PLUGIN_TEST_COLLECTOR_FILES:-}"
 FORMAT="${BUILDKITE_PLUGIN_TEST_COLLECTOR_FORMAT:-}"
 TIMEOUT="${BUILDKITE_PLUGIN_TEST_COLLECTOR_TIMEOUT:-30}"
 BASE_PATH="${BUILDKITE_PLUGIN_TEST_COLLECTOR_BASE_PATH:-.}"
@@ -30,6 +29,16 @@ fi
 
 TOKEN_VALUE="${!TOKEN_ENV_NAME:-}"
 PLUGIN_VERSION=$(git rev-parse --short HEAD 2>/dev/null || echo "")
+
+if [[ -z "${TOKEN_VALUE}" ]]; then
+  echo "Missing $TOKEN_ENV_NAME environment variable"
+  exit 1
+fi
+
+if [[ -z "${FORMAT}" ]]; then
+  echo "Missing file format 'format'. Possible values: 'junit', 'json'"
+  exit 1
+fi
 
 # Uploads files to the Test Analytics API
 #
@@ -78,43 +87,52 @@ upload() {
   curl "${curl_args[@]}"
 }
 
-if [[ -z "${TOKEN_VALUE}" ]]; then
-  echo "Missing $TOKEN_ENV_NAME environment variable"
-  exit 1
-fi
+# Runs the whole plugin logic for a particular find pattern
+find_and_upload() {
+  FILES_PATTERN="$1"
+  FIND_CMD=(find)
 
-if [[ -z "${FILES_PATTERN}" ]]; then
-  echo "Missing file upload pattern 'files', e.g. 'junit-*.xml'"
-  exit 1
-fi
+  if [[ "${BUILDKITE_PLUGIN_TEST_COLLECTOR_FOLLOW_SYMLINKS:-}" =~ ^(true|on|1|always)$ ]]; then
+    FIND_CMD+=('-L')
+  fi
 
-if [[ -z "${FORMAT}" ]]; then
-  echo "Missing file format 'format'. Possible values: 'junit', 'json'"
-  exit 1
-fi
+  matching_files=()
+  while IFS=$'' read -r matching_file ; do
+    matching_files+=("$matching_file")
+  done < <("${FIND_CMD[@]}" "${BASE_PATH}" -path "${BASE_PATH}/${FILES_PATTERN}")
 
-FIND_CMD=(find)
+  if [[ "${#matching_files[@]}" -eq "0" ]]; then
+    echo "No files found matching '${FILES_PATTERN}'"
+    if [[ "${BUILDKITE_COMMAND_EXIT_STATUS:-0}" -eq "0" ]]; then
+      exit 1
+    fi
+  else
+    # needs to be part of else for bash4.3 compatibility
+    for file in "${matching_files[@]}"; do
+      echo "Uploading '$file'..."
+      if ! upload "$TOKEN_VALUE" "$FORMAT" "${file}"; then
+        echo "Error uploading, will continue"
+      fi
+    done
+  fi
+}
 
-if [[ "${BUILDKITE_PLUGIN_TEST_COLLECTOR_FOLLOW_SYMLINKS:-}" =~ ^(true|on|1|always)$ ]]; then
-  FIND_CMD+=('-L')
-fi
+if [ -n "${BUILDKITE_PLUGIN_TEST_COLLECTOR_FILES:-}" ]; then
+  find_and_upload "${BUILDKITE_PLUGIN_TEST_COLLECTOR_FILES}"
+elif [ -n "${BUILDKITE_PLUGIN_TEST_COLLECTOR_FILES_0:-}" ]; then
+  prefix="BUILDKITE_PLUGIN_TEST_COLLECTOR_FILES"
+  parameter="${prefix}_0"
 
-matching_files=()
-while IFS=$'' read -r matching_file ; do
-  matching_files+=("$matching_file")
-done < <("${FIND_CMD[@]}" "${BASE_PATH}" -path "${BASE_PATH}/${FILES_PATTERN}")
-
-if [[ "${#matching_files[@]}" -eq "0" ]]; then
-  echo "No files found matching '${FILES_PATTERN}'"
-  if [[ "${BUILDKITE_COMMAND_EXIT_STATUS:-0}" -eq "0" ]]; then
-    exit 1
+  if [ -n "${!parameter:-}" ]; then
+    i=0
+    parameter="${prefix}_${i}"
+    while [ -n "${!parameter:-}" ]; do
+      find_and_upload "${!parameter}"
+      i=$((i+1))
+      parameter="${prefix}_${i}"
+    done
   fi
 else
-  # needs to be part of else for bash4.3 compatibility
-  for file in "${matching_files[@]}"; do
-    echo "Uploading '$file'..."
-    if ! upload "$TOKEN_VALUE" "$FORMAT" "${file}"; then
-      echo "Error uploading, will continue"
-    fi
-  done
+  echo "Missing file upload pattern 'files', e.g. 'junit-*.xml'"
+  exit 1
 fi

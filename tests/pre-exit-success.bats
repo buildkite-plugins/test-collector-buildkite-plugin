@@ -54,6 +54,43 @@ COMMON_CURL_OPTIONS='--form \* --form \* --form \* --form \* --form \* --form \*
   assert_output --partial "curl success 2"
 }
 
+@test "Single file pattern through array" {
+  export BUILDKITE_PLUGIN_TEST_COLLECTOR_FILES_0='**/*/junit-1.xml'
+  unset BUILDKITE_PLUGIN_TEST_COLLECTOR_FILES
+
+  stub curl \
+    "-X POST --silent --show-error --max-time 30 --form format=junit ${COMMON_CURL_OPTIONS} \* -H \* : echo 'curl success 1'"
+
+  run "$PWD/hooks/pre-exit"
+
+  assert_success
+  assert_output --partial "Uploading './tests/fixtures/junit-1.xml'..."
+  refute_output --partial "Uploading './tests/fixtures/junit-2.xml'..."
+  assert_output --partial "curl success 1"
+
+  unstub curl
+}
+
+@test "Multiple file pattern through array" {
+  export BUILDKITE_PLUGIN_TEST_COLLECTOR_FILES_0="*/fixtures/*-1.xml"
+  export BUILDKITE_PLUGIN_TEST_COLLECTOR_FILES_1="*/fixtures/*-2.xml"
+  unset BUILDKITE_PLUGIN_TEST_COLLECTOR_FILES
+
+  stub curl \
+    "-X POST --silent --show-error --max-time 30 --form format=junit ${COMMON_CURL_OPTIONS} \* -H \* : echo 'curl success 1'" \
+    "-X POST --silent --show-error --max-time 30 --form format=junit ${COMMON_CURL_OPTIONS} \* -H \* : echo 'curl success 2'"
+
+  run "$PWD/hooks/pre-exit"
+
+  assert_success
+  assert_output --partial "Uploading './tests/fixtures/junit-1.xml'..."
+  assert_output --partial "Uploading './tests/fixtures/junit-2.xml'..."
+  assert_output --partial "curl success 1"
+  assert_output --partial "curl success 2"
+
+  unstub curl
+}
+
 @test "Debug true prints the curl info w/o token" {
   export BUILDKITE_PLUGIN_TEST_COLLECTOR_DEBUG="true"
 
