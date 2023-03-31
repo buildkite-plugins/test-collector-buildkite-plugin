@@ -31,6 +31,8 @@ configuration:
         - junit
     timeout:
       type: integer
+    annotate-report:
+      type: boolean
   required:
     - files
     - format

@@ -5,6 +5,8 @@ TOKEN_ENV_NAME="${BUILDKITE_PLUGIN_TEST_COLLECTOR_API_TOKEN_ENV_NAME:-BUILDKITE_
 FORMAT="${BUILDKITE_PLUGIN_TEST_COLLECTOR_FORMAT:-}"
 TIMEOUT="${BUILDKITE_PLUGIN_TEST_COLLECTOR_TIMEOUT:-30}"
 BASE_PATH="${BUILDKITE_PLUGIN_TEST_COLLECTOR_BASE_PATH:-.}"
+ANNOTATE="${BUILDKITE_PLUGIN_TEST_COLLECTOR_ANNOTATE_REPORT:-false}"
+CURL_RESP_FILE="${CURL_RESP_FILE:-response.json}"
 DEBUG="false"
 
 if [[ "${BUILDKITE_PLUGIN_TEST_COLLECTOR_DEBUG:-}" =~ ^(true|on|1|always)$ ]]; then
@@ -39,6 +41,21 @@ if [[ -z "${FORMAT}" ]]; then
   echo "Missing file format 'format'. Possible values: 'junit', 'json'"
   exit 1
 fi
+
+# Annotates the build with the report URL
+annotate-report() {
+  local json_file="$1"
+  local report_url
+  # Could be easier with jq, but we don't want to require it
+  report_url=$(< "$json_file" tr '{' '\n' | tr , '\n' | tr '}' '\n' | grep 'run_url' | sed -r 's/^[^:]*:(.*)$/\1/' | sed 's/"//g')
+
+  if [[ "$report_url" == "" ]]; then
+    echo "Failed to upload test results from $json_file"
+    return
+  fi
+
+  buildkite-agent annotate --style info --context "test-collector" "Check the test report [here]($report_url)."
+}
 
 # Uploads files to the Test Analytics API
 #
@@ -82,9 +99,10 @@ upload() {
     echo curl "${curl_args[@]}"
   fi
 
-  curl_args+=("-H" "Authorization: Token token=\"$TOKEN_VALUE\"")
+  curl_args+=("-H" "Authorization: Token token=\"$TOKEN_VALUE\"" "-o" "${CURL_RESP_FILE}")
 
   curl "${curl_args[@]}"
+  [ "${ANNOTATE}" == "true" ] && annotate-report "${CURL_RESP_FILE}"
 }
 
 # Runs the whole plugin logic for a particular find pattern
