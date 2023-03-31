@@ -6,6 +6,7 @@ FORMAT="${BUILDKITE_PLUGIN_TEST_COLLECTOR_FORMAT:-}"
 TIMEOUT="${BUILDKITE_PLUGIN_TEST_COLLECTOR_TIMEOUT:-30}"
 BASE_PATH="${BUILDKITE_PLUGIN_TEST_COLLECTOR_BASE_PATH:-.}"
 ANNOTATE="${BUILDKITE_PLUGIN_TEST_COLLECTOR_ANNOTATE_REPORT:-false}"
+REPORT_URLS_FILE=$(mktemp)
 CURL_RESP_FILE="${CURL_RESP_FILE:-response.json}"
 DEBUG="false"
 
@@ -42,19 +43,47 @@ if [[ -z "${FORMAT}" ]]; then
   exit 1
 fi
 
-# Annotates the build with the report URL
+# Creates the annotations with all the report URLs
 annotate-report() {
+  [ "${ANNOTATE}" != "true" ] && return
+  local json_file="$1"
+  mapfile -t REPORT_URLS < <(sort $json_file | uniq)
+
+  local REPORTS=""
+  REPORT_COUNT=1
+  for URL in "${!REPORT_URLS[@]}"; do
+    REPORTS+="- [Report #${REPORT_COUNT}](${URL})\n"
+    REPORT_COUNT=$((REPORT_COUNT + 1))
+  done
+
+  buildkite-agent annotate --style info --context "test-collector" "Check the test report(s) here: \n\n${REPORTS}"
+}
+
+# Saves the build with the report URL
+save-report-url() {
+  [ "${ANNOTATE}" != "true" ] && return
+  
   local json_file="$1"
   local report_url
+
+  if [[ ! -f "${json_file}" ]]; then
+    echo "Failed to upload test results from $json_file. File not found."
+    return
+  fi
   # Could be easier with jq, but we don't want to require it
-  report_url=$(< "$json_file" tr '{' '\n' | tr , '\n' | tr '}' '\n' | grep 'run_url' | sed -r 's/^[^:]*:(.*)$/\1/' | sed 's/"//g')
+  if command -v jq >/dev/null; then
+     report_url=$(jq -r '.run_url' "${json_file}")
+  else
+     report_url=$(sed 's/.*"run_url" *: *"\([^"]*\)".*/\1/g' "${json_file}")
+  fi
 
   if [[ "$report_url" == "" ]]; then
     echo "Failed to upload test results from $json_file"
     return
   fi
 
-  buildkite-agent annotate --style info --context "test-collector" "Check the test report [here]($report_url)."
+  echo "Saving test report URL to $REPORT_URLS_FILE"
+  echo "$report_url" > "$REPORT_URLS_FILE"
 }
 
 # Uploads files to the Test Analytics API
@@ -91,7 +120,7 @@ upload() {
     curl_args+=("--form" "run_env[version]=$PLUGIN_VERSION")
   fi
 
-  curl_args+=("${BUILDKITE_PLUGIN_TEST_COLLECTOR_API_URL:-https://analytics-api.buildkite.com/v1/uploads}")
+  curl_args+=("${BUILDKITE_PLUGIN_TEST_COLLECTOR_API_URL:-https://analytics-api.buildkite.com/v1/uploads}" "-o" "${CURL_RESP_FILE}")
 
   # Print debugging output before we add the token, so it doesn't ever get
   # printed to output
@@ -99,10 +128,9 @@ upload() {
     echo curl "${curl_args[@]}"
   fi
 
-  curl_args+=("-H" "Authorization: Token token=\"$TOKEN_VALUE\"" "-o" "${CURL_RESP_FILE}")
+  curl_args+=("-H" "Authorization: Token token=\"$TOKEN_VALUE\"")
 
   curl "${curl_args[@]}"
-  [ "${ANNOTATE}" == "true" ] && annotate-report "${CURL_RESP_FILE}"
 }
 
 # Runs the whole plugin logic for a particular find pattern
@@ -131,12 +159,14 @@ find_and_upload() {
       if ! upload "$TOKEN_VALUE" "$FORMAT" "${file}"; then
         echo "Error uploading, will continue"
       fi
+      save-report-url "${CURL_RESP_FILE}"
     done
   fi
 }
 
 if [ -n "${BUILDKITE_PLUGIN_TEST_COLLECTOR_FILES:-}" ]; then
   find_and_upload "${BUILDKITE_PLUGIN_TEST_COLLECTOR_FILES}"
+  annotate-report "${REPORT_URLS_FILE}"
 elif [ -n "${BUILDKITE_PLUGIN_TEST_COLLECTOR_FILES_0:-}" ]; then
   prefix="BUILDKITE_PLUGIN_TEST_COLLECTOR_FILES"
   parameter="${prefix}_0"
@@ -149,6 +179,7 @@ elif [ -n "${BUILDKITE_PLUGIN_TEST_COLLECTOR_FILES_0:-}" ]; then
       i=$((i+1))
       parameter="${prefix}_${i}"
     done
+    annotate-report "${REPORT_URLS_FILE}"
   fi
 else
   echo "Missing file upload pattern 'files', e.g. 'junit-*.xml'"
