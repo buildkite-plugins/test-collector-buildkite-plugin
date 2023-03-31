@@ -47,7 +47,7 @@ fi
 annotate-report() {
   [ "${ANNOTATE}" != "true" ] && return
   local json_file="$1"
-  mapfile -t REPORT_URLS < <(sort $json_file | uniq)
+  mapfile -t REPORT_URLS < <(sort "${json_file}" | uniq)
 
   local REPORTS=""
   REPORT_COUNT=1
