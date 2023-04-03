@@ -76,9 +76,9 @@ Maximum number of seconds to wait for each file to upload before timing out.
 
 Default value: `30`
 
-#### `annotate-report`(boolean)
+#### `annotation-link`(boolean)
 
-Adds an annotation to with a link to the uploaded report.
+Adds an annotation to the build run with a link to the uploaded report.
 
 Default value: `false`
 

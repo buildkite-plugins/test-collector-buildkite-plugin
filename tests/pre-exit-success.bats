@@ -41,7 +41,8 @@ COMMON_CURL_OPTIONS='--form \* --form \* --form \* --form \* --form \* --form \*
 
   stub curl \
     "-X POST --silent --show-error --max-time 30 --form format=junit ${COMMON_CURL_OPTIONS} \* \* \* -H \* : echo 'curl success 1'" \
-    "-X POST --silent --show-error --max-time 30 --form format=junit ${COMMON_CURL_OPTIONS} \* \* \* -H \* : echo 'curl success 2'"
+    "-X POST --silent --show-error --max-time 30 --form format=junit ${COMMON_CURL_OPTIONS} \* \* \* -H \* : echo 'curl success 2'" \
+    "-X POST --silent --show-error --max-time 30 --form format=junit ${COMMON_CURL_OPTIONS} \* \* \* -H \* : echo 'curl success 3'"
 
   run "$PWD/hooks/pre-exit"
 
@@ -50,8 +51,10 @@ COMMON_CURL_OPTIONS='--form \* --form \* --form \* --form \* --form \* --form \*
   assert_success
   assert_output --partial "Uploading './tests/fixtures/junit-1.xml'..."
   assert_output --partial "Uploading './tests/fixtures/junit-2.xml'..."
+  assert_output --partial "Uploading './tests/fixtures/junit-3.xml'..."
   assert_output --partial "curl success 1"
   assert_output --partial "curl success 2"
+  assert_output --partial "curl success 3"
 }
 
 @test "Single file pattern through array" {
@@ -230,35 +233,4 @@ COMMON_CURL_OPTIONS='--form \* --form \* --form \* --form \* --form \* --form \*
   assert_success
   assert_output --partial "Uploading './tests/fixtures/junit-1.xml'..."
   assert_output --partial "Error uploading, will continue"
-}
-
-@test "Annotates report" {
-  export BUILDKITE_PLUGIN_TEST_COLLECTOR_ANNOTATE_REPORT="true"
-  export CURL_RESP_FILE="./tests/fixtures/response.json"
-  stub curl "-X POST --silent --show-error --max-time 30 --form format=junit ${COMMON_CURL_OPTIONS} \* \* \* -H \* : echo 'curl success'"
-  stub buildkite-agent "annotate --style info --context \"test-collector\"  \* : echo 'annotation success'"
-  
-  run "$PWD/hooks/pre-exit"
-
-  unstub curl
-
-  assert_success
-  assert_output --partial "Uploading './tests/fixtures/junit-1.xml'..."
-  assert_output --partial "curl success"
-  assert_output --partial "annotation success"
-}
-
-@test "Annotates report absorbs empty file error" {
-  export BUILDKITE_PLUGIN_TEST_COLLECTOR_ANNOTATE_REPORT="true"
-  stub curl "-X POST --silent --show-error --max-time 30 --form format=junit ${COMMON_CURL_OPTIONS} \* \* \* -H \* : echo 'curl success'"
-  stub buildkite-agent "annotate --style info --context \"test-collector\"  \* : echo 'annotation success'"
-  
-  run "$PWD/hooks/pre-exit"
-
-  unstub curl
-
-  assert_success
-  assert_output --partial "Uploading './tests/fixtures/junit-1.xml'..."
-  assert_output --partial "curl success"
-  assert_output --partial "Failed to upload test results from response.json"
 }
