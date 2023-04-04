@@ -124,7 +124,11 @@ upload() {
     curl_args+=("--form" "run_env[version]=$PLUGIN_VERSION")
   fi
 
-  curl_args+=("${BUILDKITE_PLUGIN_TEST_COLLECTOR_API_URL:-https://analytics-api.buildkite.com/v1/uploads}" "-o" "${CURL_RESP_FILE}")
+  if [[ "$ANNOTATE" != "false" ]]; then
+    curl_args+=("-o" "${CURL_RESP_FILE}")
+  fi
+
+  curl_args+=("${BUILDKITE_PLUGIN_TEST_COLLECTOR_API_URL:-https://analytics-api.buildkite.com/v1/uploads}")
 
   # Print debugging output before we add the token, so it doesn't ever get
   # printed to output
@@ -163,7 +167,7 @@ find_and_upload() {
       if ! upload "$TOKEN_VALUE" "$FORMAT" "${file}"; then
         echo "Error uploading, will continue"
       fi
-      if [ "${ANNOTATE}" != "false" ]; then
+      if [[ "$ANNOTATE" != "false" ]]; then
         save-report-url "${CURL_RESP_FILE}"
       fi
     done
@@ -189,6 +193,6 @@ else
   echo "Missing file upload pattern 'files', e.g. 'junit-*.xml'"
   exit 1
 fi
-if [ "${ANNOTATE}" != "false" ]; then
+if [ "$ANNOTATE" != "false" ]; then
   annotation-link "${REPORT_URLS_FILE}"
 fi

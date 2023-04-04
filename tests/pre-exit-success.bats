@@ -25,7 +25,7 @@ setup() {
 COMMON_CURL_OPTIONS='--form \* --form \* --form \* --form \* --form \* --form \* --form \* --form \* --form \* --form \*'
 
 @test "Uploads a file" {
-  stub curl "-X POST --silent --show-error --max-time 30 --form format=junit ${COMMON_CURL_OPTIONS} \* \* \* -H \* : echo 'curl success'"
+  stub curl "-X POST --silent --show-error --max-time 30 --form format=junit ${COMMON_CURL_OPTIONS} \* -H \* : echo 'curl success'"
 
   run "$PWD/hooks/pre-exit"
 
@@ -40,9 +40,9 @@ COMMON_CURL_OPTIONS='--form \* --form \* --form \* --form \* --form \* --form \*
   export BUILDKITE_PLUGIN_TEST_COLLECTOR_FILES='**/*/junit-*.xml'
 
   stub curl \
-    "-X POST --silent --show-error --max-time 30 --form format=junit ${COMMON_CURL_OPTIONS} \* \* \* -H \* : echo 'curl success 1'" \
-    "-X POST --silent --show-error --max-time 30 --form format=junit ${COMMON_CURL_OPTIONS} \* \* \* -H \* : echo 'curl success 2'" \
-    "-X POST --silent --show-error --max-time 30 --form format=junit ${COMMON_CURL_OPTIONS} \* \* \* -H \* : echo 'curl success 3'"
+    "-X POST --silent --show-error --max-time 30 --form format=junit ${COMMON_CURL_OPTIONS} \* -H \* : echo 'curl success 1'" \
+    "-X POST --silent --show-error --max-time 30 --form format=junit ${COMMON_CURL_OPTIONS} \* -H \* : echo 'curl success 2'" \
+    "-X POST --silent --show-error --max-time 30 --form format=junit ${COMMON_CURL_OPTIONS} \* -H \* : echo 'curl success 3'"
 
   run "$PWD/hooks/pre-exit"
 
@@ -62,7 +62,7 @@ COMMON_CURL_OPTIONS='--form \* --form \* --form \* --form \* --form \* --form \*
   unset BUILDKITE_PLUGIN_TEST_COLLECTOR_FILES
 
   stub curl \
-    "-X POST --silent --show-error --max-time 30 --form format=junit ${COMMON_CURL_OPTIONS} \* \* \* -H \* : echo 'curl success 1'"
+    "-X POST --silent --show-error --max-time 30 --form format=junit ${COMMON_CURL_OPTIONS} \* -H \* : echo 'curl success 1'"
 
   run "$PWD/hooks/pre-exit"
 
@@ -80,8 +80,8 @@ COMMON_CURL_OPTIONS='--form \* --form \* --form \* --form \* --form \* --form \*
   unset BUILDKITE_PLUGIN_TEST_COLLECTOR_FILES
 
   stub curl \
-    "-X POST --silent --show-error --max-time 30 --form format=junit ${COMMON_CURL_OPTIONS} \* \* \* -H \* : echo 'curl success 1'" \
-    "-X POST --silent --show-error --max-time 30 --form format=junit ${COMMON_CURL_OPTIONS} \* \* \* -H \* : echo 'curl success 2'"
+    "-X POST --silent --show-error --max-time 30 --form format=junit ${COMMON_CURL_OPTIONS} \* -H \* : echo 'curl success 1'" \
+    "-X POST --silent --show-error --max-time 30 --form format=junit ${COMMON_CURL_OPTIONS} \* -H \* : echo 'curl success 2'"
 
   run "$PWD/hooks/pre-exit"
 
@@ -97,7 +97,7 @@ COMMON_CURL_OPTIONS='--form \* --form \* --form \* --form \* --form \* --form \*
 @test "Debug true prints the curl info w/o token" {
   export BUILDKITE_PLUGIN_TEST_COLLECTOR_DEBUG="true"
 
-  stub curl "-X POST --silent --show-error --max-time 30 --form format=junit ${COMMON_CURL_OPTIONS} --form \* \* \* \* -H \* : echo \"curl success with \${30}\""
+  stub curl "-X POST --silent --show-error --max-time 30 --form format=junit ${COMMON_CURL_OPTIONS} --form \* \* -H \* : echo \"curl success with \${30}\""
 
   run "$PWD/hooks/pre-exit"
 
@@ -112,7 +112,7 @@ COMMON_CURL_OPTIONS='--form \* --form \* --form \* --form \* --form \* --form \*
 @test "Debug env var true prints the curl info w/o token" {
   export BUILDKITE_ANALYTICS_DEBUG_ENABLED="true"
 
-  stub curl "-X POST --silent --show-error --max-time 30 --form format=junit ${COMMON_CURL_OPTIONS} --form \* \* \* \* -H \* : echo \"curl success with  with \${30}\""
+  stub curl "-X POST --silent --show-error --max-time 30 --form format=junit ${COMMON_CURL_OPTIONS} --form \* \* -H \* : echo \"curl success with  with \${30}\""
 
   run "$PWD/hooks/pre-exit"
 
@@ -126,7 +126,7 @@ COMMON_CURL_OPTIONS='--form \* --form \* --form \* --form \* --form \* --form \*
 @test "Debug false does not print the curl info" {
   export BUILDKITE_PLUGIN_TEST_COLLECTOR_DEBUG="false"
 
-  stub curl "-X POST --silent --show-error --max-time 30 --form format=junit ${COMMON_CURL_OPTIONS} \* \* \* -H \* : echo 'curl success'"
+  stub curl "-X POST --silent --show-error --max-time 30 --form format=junit ${COMMON_CURL_OPTIONS} \* -H \* : echo 'curl success'"
 
   run "$PWD/hooks/pre-exit"
 
@@ -139,7 +139,7 @@ COMMON_CURL_OPTIONS='--form \* --form \* --form \* --form \* --form \* --form \*
 @test "Timeout is configurable" {
   export BUILDKITE_PLUGIN_TEST_COLLECTOR_TIMEOUT='999'
 
-  stub curl "-X POST --silent --show-error --max-time 999 --form format=junit ${COMMON_CURL_OPTIONS} \* \* \* -H \* : echo 'curl success'"
+  stub curl "-X POST --silent --show-error --max-time 999 --form format=junit ${COMMON_CURL_OPTIONS} \* -H \* : echo 'curl success'"
 
   run "$PWD/hooks/pre-exit"
 
@@ -151,7 +151,7 @@ COMMON_CURL_OPTIONS='--form \* --form \* --form \* --form \* --form \* --form \*
 
 @test "Git available sends plugin version" {
   stub git "rev-parse --short HEAD : echo 'some-commit-id'"
-  stub curl "-X POST --silent --show-error --max-time 30 --form format=junit ${COMMON_CURL_OPTIONS} --form \* \* \* \* -H \* : echo \"curl success with \${30}\""
+  stub curl "-X POST --silent --show-error --max-time 30 --form format=junit ${COMMON_CURL_OPTIONS} --form \* \* -H \* : echo \"curl success with \${30}\""
 
   run "$PWD/hooks/pre-exit"
 
@@ -167,7 +167,7 @@ COMMON_CURL_OPTIONS='--form \* --form \* --form \* --form \* --form \* --form \*
   export BUILDKITE_PLUGIN_TEST_COLLECTOR_FOLLOW_SYMLINKS='true'
 
   stub find "-L . -path \* : echo './tests/fixtures/junit-1.xml'"
-  stub curl "-X POST --silent --show-error --max-time 30 --form format=junit ${COMMON_CURL_OPTIONS} \* \* \* -H \* : echo 'curl success'"
+  stub curl "-X POST --silent --show-error --max-time 30 --form format=junit ${COMMON_CURL_OPTIONS} \* -H \* : echo 'curl success'"
 
   run "$PWD/hooks/pre-exit"
 
@@ -182,7 +182,7 @@ COMMON_CURL_OPTIONS='--form \* --form \* --form \* --form \* --form \* --form \*
   export BUILDKITE_PLUGIN_TEST_COLLECTOR_FOLLOW_SYMLINKS='false'
 
   stub find ". -path \* : echo './tests/fixtures/junit-1.xml'"
-  stub curl "-X POST --silent --show-error --max-time 30 --form format=junit ${COMMON_CURL_OPTIONS} \* \* \* -H \* : echo 'curl success'"
+  stub curl "-X POST --silent --show-error --max-time 30 --form format=junit ${COMMON_CURL_OPTIONS} \* -H \* : echo 'curl success'"
 
   run "$PWD/hooks/pre-exit"
 
@@ -196,7 +196,7 @@ COMMON_CURL_OPTIONS='--form \* --form \* --form \* --form \* --form \* --form \*
 @test "API can change" {
   export BUILDKITE_PLUGIN_TEST_COLLECTOR_API_URL='https://test-api.example.com/v2'
 
-  stub curl "-X POST --silent --show-error --max-time 30 --form format=junit ${COMMON_CURL_OPTIONS} \* \* \* -H \* : echo \"curl success against \${29}\""
+  stub curl "-X POST --silent --show-error --max-time 30 --form format=junit ${COMMON_CURL_OPTIONS} \* -H \* : echo \"curl success against \${29}\""
 
   run "$PWD/hooks/pre-exit"
 
@@ -212,7 +212,7 @@ COMMON_CURL_OPTIONS='--form \* --form \* --form \* --form \* --form \* --form \*
   export BUILDKITE_PLUGIN_TEST_COLLECTOR_BASE_PATH='/test'
 
   stub find "/test -path /test/\*\*/\*/junit-1.xml : echo '/test/tests/fixtures/junit-1.xml'"
-  stub curl "-X POST --silent --show-error --max-time 30 --form format=junit ${COMMON_CURL_OPTIONS} \* \* \* -H \* : echo 'curl success'"
+  stub curl "-X POST --silent --show-error --max-time 30 --form format=junit ${COMMON_CURL_OPTIONS} \* -H \* : echo 'curl success'"
 
   run "${PWD}/hooks/pre-exit"
 
@@ -224,7 +224,7 @@ COMMON_CURL_OPTIONS='--form \* --form \* --form \* --form \* --form \* --form \*
 }
 
 @test "Absorb curl failures" {
-  stub curl "-X POST --silent --show-error --max-time 30 --form format=junit ${COMMON_CURL_OPTIONS} \* \* \* -H \* : exit 10"
+  stub curl "-X POST --silent --show-error --max-time 30 --form format=junit ${COMMON_CURL_OPTIONS} \* -H \* : exit 10"
 
   run "$PWD/hooks/pre-exit"
 
