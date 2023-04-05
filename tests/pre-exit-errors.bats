@@ -48,6 +48,17 @@ setup() {
   assert_output --partial "No files found matching 'file.xml'"
 }
 
+@test "No file found custom exit code with missing-error" {
+  export BUILDKITE_ANALYTICS_TOKEN='abc'
+  export BUILDKITE_PLUGIN_TEST_COLLECTOR_FILES='file.xml'
+  export BUILDKITE_PLUGIN_TEST_COLLECTOR_FORMAT='junit'
+  export BUILDKITE_PLUGIN_TEST_COLLECTOR_MISSING_ERROR='135'
+  run "$PWD/hooks/pre-exit"
+
+  assert_failure 135
+  assert_output --partial "No files found matching 'file.xml'"
+}
+
 @test "Keeps command error if no file is found" {
   export BUILDKITE_ANALYTICS_TOKEN='abc'
   export BUILDKITE_PLUGIN_TEST_COLLECTOR_FILES='file.xml'
