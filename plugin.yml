@@ -29,6 +29,8 @@ configuration:
       enum:
         - json
         - junit
+    missing-error:
+      type: integer
     timeout:
       type: integer
   required:
