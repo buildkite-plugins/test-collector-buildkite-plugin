@@ -104,7 +104,7 @@ find_and_upload() {
   if [[ "${#matching_files[@]}" -eq "0" ]]; then
     echo "No files found matching '${FILES_PATTERN}'"
     if [[ "${BUILDKITE_COMMAND_EXIT_STATUS:-0}" -eq "0" ]]; then
-      exit 1
+      exit "${BUILDKITE_PLUGIN_TEST_COLLECTOR_MISSING_ERROR:-1}"
     fi
   else
     # needs to be part of else for bash4.3 compatibility
