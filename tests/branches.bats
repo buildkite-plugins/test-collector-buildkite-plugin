@@ -4,7 +4,7 @@
 # export CURL_STUB_DEBUG=/dev/tty
 # export GIT_STUB_DEBUG=/dev/tty
 
-CURL_DEFAULT_STUB='\* \* \* \* \* \* \* \* \* \* \* \* \* \* \* \* \* \* \* \* \* \* \* \* \* \* \* \* \* \* \* \* \* \* \*'
+CURL_DEFAULT_STUB='\* \* \* \* \* \* \* \* \* \* \* \* \* \* \* \* \* \* \* \* \* \* \* \* \* \* \* \* \* \* \* \* \*'
 
 setup() {
   load "$BATS_PLUGIN_PATH/load.bash"

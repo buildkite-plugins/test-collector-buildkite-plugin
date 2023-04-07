@@ -5,7 +5,7 @@ TOKEN_ENV_NAME="${BUILDKITE_PLUGIN_TEST_COLLECTOR_API_TOKEN_ENV_NAME:-BUILDKITE_
 FORMAT="${BUILDKITE_PLUGIN_TEST_COLLECTOR_FORMAT:-}"
 TIMEOUT="${BUILDKITE_PLUGIN_TEST_COLLECTOR_TIMEOUT:-30}"
 BASE_PATH="${BUILDKITE_PLUGIN_TEST_COLLECTOR_BASE_PATH:-.}"
-ANNOTATE="${BUILDKITE_PLUGIN_TEST_COLLECTOR_ANNOTATE_LINK:-false}"
+ANNOTATE="${BUILDKITE_PLUGIN_TEST_COLLECTOR_ANNOTATION_LINK:-false}"
 REPORT_URLS_FILE=$(mktemp)
 CURL_RESP_FILE="${CURL_RESP_FILE:-response.json}"
 DEBUG="false"
@@ -75,10 +75,10 @@ save-report-url() {
   # Could be easier with jq, but we don't want to require it
   if which jq >/dev/null; then
       echo "Using jq to parse the report URL"
-     report_url=$(jq -r '.run_url' "${json_file}")
+      report_url=$(jq -r '.run_url' "${json_file}")
   else
       echo "Not using jq to parse the report URL"
-     report_url=$(sed 's/.*"run_url" *: *"\([^"]*\)".*/\1/g' "${json_file}")
+      report_url=$(sed 's/.*"run_url" *: *"\([^"]*\)".*/\1/g' "${json_file}")
   fi
 
   if [ "$report_url" == "null" ]; then
@@ -86,7 +86,6 @@ save-report-url() {
     return
   fi
 
-  echo "Saving tests report URL to $REPORT_URLS_FILE"
   echo "$report_url" >> "$REPORT_URLS_FILE"
 }
 
