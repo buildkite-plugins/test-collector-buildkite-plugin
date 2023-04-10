@@ -95,7 +95,7 @@ COMMON_CURL_OPTIONS='--form \* --form \* --form \* --form \* --form \* --form \*
     "-r '.run_url' \* : echo https://buildkite.com/organizations/example/analytics/suites/collector-test/runs/1" \
     "-r '.run_url' \* : echo https://buildkite.com/organizations/example/analytics/suites/collector-test/runs/2" \
     "-r '.run_url' \* : echo https://buildkite.com/organizations/example/analytics/suites/collector-test/runs/1"
-  stub buildkite-agent "annotate --style info --context \"test-collector\"  \* : echo 'annotation success'"
+  stub buildkite-agent "annotate --style info --context \"test-collector\"  \* : echo 'annotation success' with params \${6}"
   
 
   run "$PWD/hooks/pre-exit"
@@ -106,7 +106,9 @@ COMMON_CURL_OPTIONS='--form \* --form \* --form \* --form \* --form \* --form \*
   assert_output --partial "curl success 1"
   assert_output --partial "curl success 3"
   assert_output --partial "Got 2 report URLs."
-  assert_output --partial "annotation success"
+  assert_output --partial "- [Report #1](https://buildkite.com/organizations/example/analytics/suites/collector-test/runs/1)"
+  assert_output --partial "- [Report #2](https://buildkite.com/organizations/example/analytics/suites/collector-test/runs/2)"
+  refute_output --partial "- [Report #3]"
 
   unstub buildkite-agent
   unstub jq

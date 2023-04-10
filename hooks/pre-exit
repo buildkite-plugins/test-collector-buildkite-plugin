@@ -52,7 +52,7 @@ annotation-link() {
   REPORT_COUNT=1
   if [ ${#REPORT_URLS[@]} -gt 0 ]; then
     echo "Got ${#REPORT_URLS[@]} report URLs."
-    for URL in "${!REPORT_URLS[@]}"; do
+    for URL in "${REPORT_URLS[@]}"; do
       REPORTS+="- [Report #${REPORT_COUNT}](${URL})\n"
       REPORT_COUNT=$((REPORT_COUNT + 1))
     done
