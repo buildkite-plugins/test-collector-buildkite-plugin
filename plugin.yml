@@ -33,6 +33,8 @@ configuration:
       type: integer
     timeout:
       type: integer
+    annotation-link:
+      type: boolean
   required:
     - files
     - format

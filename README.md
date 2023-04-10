@@ -84,6 +84,12 @@ Maximum number of seconds to wait for each file to upload before timing out.
 
 Default value: `30`
 
+#### `annotation-link`(boolean)
+
+Adds an annotation to the build run with a link to the uploaded report.
+
+Default value: `false`
+
 ## Examples
 
 ### Upload a JUnit file
