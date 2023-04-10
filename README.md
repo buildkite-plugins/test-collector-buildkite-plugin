@@ -101,7 +101,7 @@ steps:
   - label: "🔨 Test"
     command: "make test"
     plugins:
-      - test-collector#v1.7.0:
+      - test-collector#v1.8.0:
           files: "test/junit-*.xml"
           format: "junit"
 ```
@@ -115,7 +115,7 @@ steps:
   - label: "🔨 Test"
     command: "make test"
     plugins:
-      - test-collector#v1.7.0:
+      - test-collector#v1.8.0:
           files:
             - "test-data-*.json"
           format: "json"
@@ -137,7 +137,7 @@ steps:
   - label: "🔍 Test Analytics"
     command: buildkite-agent artifact download tests-*.xml
     plugins:
-      - test-collector#v1.7.0:
+      - test-collector#v1.8.0:
           files: "tests-*.xml"
           format: "junit"
 ```
@@ -151,7 +151,7 @@ steps:
   - label: "🔨 Test"
     command: "make test"
     plugins:
-      - test-collector#v1.7.0:
+      - test-collector#v1.8.0:
           files: "test-data-*.json"
           format: "json"
           branches: "-qa$"
@@ -164,7 +164,7 @@ steps:
   - label: "🔨 Test"
     command: "make test"
     plugins:
-      - test-collector#v1.7.0:
+      - test-collector#v1.8.0:
           files: "test-data-*.json"
           format: "json"
           exclude-branches: "^legacy$"
@@ -177,7 +177,7 @@ steps:
   - label: "🔨 Test"
     command: "make test"
     plugins:
-      - test-collector#v1.7.0:
+      - test-collector#v1.8.0:
           files: "test-data-*.json"
           format: "json"
           branches: "^stage-"
@@ -187,10 +187,16 @@ steps:
 
 ## ⚒ Developing
 
-You can use the [bk cli](https://github.com/buildkite/cli) to run the whole pipeline locally, or just the tests using Docker Compose directly:
+You can use the [bk cli](https://github.com/buildkite/cli) to run the [pipeline](buildkite.yaml) locally:
 
 ```bash
-docker-compose run --rm tests
+bk local run
+```
+
+Or if you want to run just the tests, you can use the docker [Plugin Tester](https://github.com/buildkite-plugins/buildkite-plugin-tester):
+
+```bash
+docker run --rm -ti -v "${PWD}":/plugin buildkite/plugin-tester:latest
 ```
 
 ## 👩‍💻 Contributing

@@ -1,15 +1,14 @@
 steps:
   - label: ":shell: Shellcheck"
     plugins:
-      shellcheck#v1.3.0:
-        files: hooks/**
+      - shellcheck#v1.3.0:
+         files: hooks/**
 
   - label: ":sparkles:"
     plugins:
-      plugin-linter#v3.1.0:
-        id: test-collector
+      - plugin-linter#v3.1.0:
+          id: test-collector
 
   - label: ":docker: :hammer:"
     plugins:
-      docker-compose#v4.11.0:
-        run: tests
+      - plugin-tester#v1.0.0: ~
