@@ -161,17 +161,14 @@ find_and_upload() {
       exit "${BUILDKITE_PLUGIN_TEST_COLLECTOR_MISSING_ERROR:-1}"
     fi
   else
-    uploads_in_progress=0
+    declare -a uploads_in_progress=()
     echo "Uploading '${#matching_files[@]}'∂ files matching '${FILES_PATTERN}'"
     # needs to be part of else for bash4.3 compatibility
     for file in "${matching_files[@]}"; do
-      while [[ $uploads_in_progress -ge $UPLOAD_CONCURRENCY ]]; do
+      while [[ "${#uploads_in_progress[@]}" -ge $UPLOAD_CONCURRENCY ]]; do
         echo "Waiting for uploads to finish..."
         sleep 1
       done
-
-      # Increment using this notation as double-parentheses will result in an exit code other than 0
-      uploads_in_progress=$((uploads_in_progress + 1))
 
       # Spawn a subcommand group to allow parallel uploads
       {
@@ -182,10 +179,11 @@ find_and_upload() {
         if [[ "$ANNOTATE" != "false" ]]; then
           save-report-url "${CURL_RESP_FILE}"
         fi
-        
-        uploads_in_progress=$((uploads_in_progress - 1))
+
         echo "Finished uploading '$file'"
       } &
+
+      uploads_in_progress+=($!)
     done
 
     # Wait for all uploads to finish
