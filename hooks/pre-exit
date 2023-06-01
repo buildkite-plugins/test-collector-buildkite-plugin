@@ -1,5 +1,5 @@
 #!/bin/bash
-set -euo pipefail
+set -euox pipefail
 
 TOKEN_ENV_NAME="${BUILDKITE_PLUGIN_TEST_COLLECTOR_API_TOKEN_ENV_NAME:-BUILDKITE_ANALYTICS_TOKEN}"
 FORMAT="${BUILDKITE_PLUGIN_TEST_COLLECTOR_FORMAT:-}"
@@ -169,21 +169,19 @@ find_and_upload() {
         sleep 1
       done
 
-      ((uploads_in_progress++))
+      #((uploads_in_progress++))
 
       echo "DEBUG"
 
-      {
-        echo "Uploading '$file'..."
-        if ! upload "$TOKEN_VALUE" "$FORMAT" "${file}"; then
-          echo "Error uploading, will continue"
-        fi
-        if [[ "$ANNOTATE" != "false" ]]; then
-          save-report-url "${CURL_RESP_FILE}"
-        fi
-        
-        ((uploads_in_progress--))
-      } &
+      echo "Uploading '$file'..."
+      if ! upload "$TOKEN_VALUE" "$FORMAT" "${file}"; then
+        echo "Error uploading, will continue"
+      fi
+      if [[ "$ANNOTATE" != "false" ]]; then
+        save-report-url "${CURL_RESP_FILE}"
+      fi
+      
+      #((uploads_in_progress--))
     done
 
     # Wait for all uploads to finish
