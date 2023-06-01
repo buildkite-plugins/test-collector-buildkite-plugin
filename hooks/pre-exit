@@ -189,14 +189,18 @@ find_and_upload() {
       # Spawn a subcommand group to allow parallel uploads
       {
         echo "Uploading '$file'..."
+        
         if ! upload "$TOKEN_VALUE" "$FORMAT" "${file}"; then
           echo "Error uploading, will continue"
         fi
+
         if [[ "$ANNOTATE" != "false" ]]; then
           save-report-url "${CURL_RESP_FILE}"
         fi
 
-        echo "Finished uploading '$file'"
+        if [[ "${DEBUG}" == "true" ]]; then
+          echo "Finished uploading '$file'"
+        fi
       } &
 
       # Store the PID of the upload
