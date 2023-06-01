@@ -171,6 +171,8 @@ find_and_upload() {
 
       ((uploads_in_progress++))
 
+      echo "DEBUG"
+
       {
         echo "Uploading '$file'..."
         if ! upload "$TOKEN_VALUE" "$FORMAT" "${file}"; then
