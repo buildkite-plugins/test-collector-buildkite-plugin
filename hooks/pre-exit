@@ -6,6 +6,7 @@ FORMAT="${BUILDKITE_PLUGIN_TEST_COLLECTOR_FORMAT:-}"
 TIMEOUT="${BUILDKITE_PLUGIN_TEST_COLLECTOR_TIMEOUT:-30}"
 BASE_PATH="${BUILDKITE_PLUGIN_TEST_COLLECTOR_BASE_PATH:-.}"
 ANNOTATE="${BUILDKITE_PLUGIN_TEST_COLLECTOR_ANNOTATION_LINK:-false}"
+UPLOAD_CONCURRENCY="${BUILDKITE_PLUGIN_TEST_COLLECTOR_UPLOAD_CONCURRENCY:-10}"
 REPORT_URLS_FILE=$(mktemp)
 CURL_RESP_FILE="${CURL_RESP_FILE:-response.json}"
 DEBUG="false"
@@ -160,16 +161,30 @@ find_and_upload() {
       exit "${BUILDKITE_PLUGIN_TEST_COLLECTOR_MISSING_ERROR:-1}"
     fi
   else
+    uploads_in_progress=0
     # needs to be part of else for bash4.3 compatibility
     for file in "${matching_files[@]}"; do
-      echo "Uploading '$file'..."
-      if ! upload "$TOKEN_VALUE" "$FORMAT" "${file}"; then
-        echo "Error uploading, will continue"
-      fi
-      if [[ "$ANNOTATE" != "false" ]]; then
-        save-report-url "${CURL_RESP_FILE}"
-      fi
+      while [[ $uploads_in_progress -ge $UPLOAD_CONCURRENCY ]]; do
+        sleep 1
+      done
+
+      ((uploads_in_progress++))
+
+      (
+        echo "Uploading '$file'..."
+        if ! upload "$TOKEN_VALUE" "$FORMAT" "${file}"; then
+          echo "Error uploading, will continue"
+        fi
+        if [[ "$ANNOTATE" != "false" ]]; then
+          save-report-url "${CURL_RESP_FILE}"
+        fi
+        
+        ((uploads_in_progress--))
+      ) &
     done
+
+    # Wait for all uploads to finish
+    wait
   fi
 }
 
