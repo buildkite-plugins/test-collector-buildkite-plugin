@@ -181,7 +181,7 @@ find_and_upload() {
         fi
         
         ((uploads_in_progress--))
-       } &
+      } &
     done
 
     # Wait for all uploads to finish
