@@ -90,6 +90,12 @@ Adds an annotation to the build run with a link to the uploaded report.
 
 Default value: `false`
 
+#### `upload-concurrency`(number)
+
+The number of concurrent file uploads to perform to the Buildkite analytics API.
+
+Default value: `1`
+
 ## Examples
 
 ### Upload a JUnit file
