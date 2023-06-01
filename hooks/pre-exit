@@ -1,5 +1,5 @@
 #!/bin/bash
-set -euo pipefail
+set -euox pipefail
 
 TOKEN_ENV_NAME="${BUILDKITE_PLUGIN_TEST_COLLECTOR_API_TOKEN_ENV_NAME:-BUILDKITE_ANALYTICS_TOKEN}"
 FORMAT="${BUILDKITE_PLUGIN_TEST_COLLECTOR_FORMAT:-}"
@@ -162,6 +162,7 @@ find_and_upload() {
     fi
   else
     uploads_in_progress=0
+    echo "Starting file uploads"
     # needs to be part of else for bash4.3 compatibility
     for file in "${matching_files[@]}"; do
       while [[ $uploads_in_progress -ge $UPLOAD_CONCURRENCY ]]; do
