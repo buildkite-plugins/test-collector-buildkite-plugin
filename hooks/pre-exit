@@ -169,19 +169,21 @@ find_and_upload() {
         sleep 1
       done
 
+      # Increment using this notation as double-parentheses will result in an exit code other than 0
       uploads_in_progress=$((uploads_in_progress + 1))
 
-      echo "DEBUG"
-      
-      echo "Uploading '$file'..."
-      if ! upload "$TOKEN_VALUE" "$FORMAT" "${file}"; then
-        echo "Error uploading, will continue"
-      fi
-      if [[ "$ANNOTATE" != "false" ]]; then
-        save-report-url "${CURL_RESP_FILE}"
-      fi
-      
-      uploads_in_progress=$((uploads_in_progress - 1))
+      # Spawn a subcommand group to allow parallel uploads
+      {
+        echo "Uploading '$file'..."
+        if ! upload "$TOKEN_VALUE" "$FORMAT" "${file}"; then
+          echo "Error uploading, will continue"
+        fi
+        if [[ "$ANNOTATE" != "false" ]]; then
+          save-report-url "${CURL_RESP_FILE}"
+        fi
+        
+        uploads_in_progress=$((uploads_in_progress - 1))
+      } &
     done
 
     # Wait for all uploads to finish
