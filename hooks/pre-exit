@@ -162,10 +162,11 @@ find_and_upload() {
     fi
   else
     uploads_in_progress=0
-    echo "Starting file uploads"
+    echo "Uploading '${#matching_files[@]}'∂ files matching '${FILES_PATTERN}'"
     # needs to be part of else for bash4.3 compatibility
     for file in "${matching_files[@]}"; do
       while [[ $uploads_in_progress -ge $UPLOAD_CONCURRENCY ]]; do
+        echo "Waiting for uploads to finish..."
         sleep 1
       done
 
@@ -183,6 +184,7 @@ find_and_upload() {
         fi
         
         uploads_in_progress=$((uploads_in_progress - 1))
+        echo "Finished uploading '$file'"
       } &
     done
 
