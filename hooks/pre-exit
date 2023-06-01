@@ -167,6 +167,11 @@ find_and_upload() {
     for file in "${matching_files[@]}"; do
       while [[ "${#uploads_in_progress[@]}" -ge $UPLOAD_CONCURRENCY ]]; do
         echo "Waiting for uploads to finish..."
+        for index in "${!uploads_in_progress[@]}"; do
+          if ! ps -p "${uploads_in_progress[index]}" > /dev/null; then
+            unset 'uploads_in_progress[index]'
+          fi
+        done
         sleep 1
       done
 
@@ -187,7 +192,7 @@ find_and_upload() {
     done
 
     # Wait for all uploads to finish
-    wait
+    wait "${uploads_in_progress[@]}"
   fi
 }
 
