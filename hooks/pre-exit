@@ -162,7 +162,7 @@ find_and_upload() {
     fi
   else
     declare -a uploads_in_progress=()
-    echo "Uploading '${#matching_files[@]}'∂ files matching '${FILES_PATTERN}'"
+    echo "Uploading '${#matching_files[@]}' files matching '${FILES_PATTERN}'"
     # needs to be part of else for bash4.3 compatibility
     for file in "${matching_files[@]}"; do
       while [[ "${#uploads_in_progress[@]}" -ge $UPLOAD_CONCURRENCY ]]; do
