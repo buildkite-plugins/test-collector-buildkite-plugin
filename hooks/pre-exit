@@ -171,7 +171,7 @@ find_and_upload() {
 
       ((uploads_in_progress++))
 
-      (
+      {
         echo "Uploading '$file'..."
         if ! upload "$TOKEN_VALUE" "$FORMAT" "${file}"; then
           echo "Error uploading, will continue"
@@ -181,7 +181,7 @@ find_and_upload() {
         fi
         
         ((uploads_in_progress--))
-      ) &
+       } &
     done
 
     # Wait for all uploads to finish
