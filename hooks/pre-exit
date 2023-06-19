@@ -176,7 +176,8 @@ find_and_upload() {
         sleep 1
 
         for index in "${!uploads_in_progress[@]}"; do
-          if ! ps -p "${uploads_in_progress[index]}" > /dev/null; then
+          # Note: kill -0 does not kill the pid, it provides a *nix compatible way to test the pid is responding.
+          if ! kill -0 "${uploads_in_progress[index]}" > /dev/null; then
             unset 'uploads_in_progress[index]'
           elif [[ "$iterations_waited" -gt 10 ]]; then
             echo "Upload '${uploads_in_progress[index]}' has been running for more than 10 seconds, killing it"
