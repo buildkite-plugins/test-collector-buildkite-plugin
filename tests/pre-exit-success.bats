@@ -72,9 +72,8 @@ COMMON_CURL_OPTIONS='--form \* --form \* --form \* --form \* --form \* --form \*
   assert_output --partial "Uploading './tests/fixtures/junit-1.xml'..."
   assert_output --partial "Uploading './tests/fixtures/junit-2.xml'..."
   assert_output --partial "Uploading './tests/fixtures/junit-3.xml'..."
-  assert_output --partial "curl success 1"
-  assert_output --partial "curl success 1"
-  assert_output --partial "curl success 1"
+  
+  assert_equal "$(echo "$output" | grep -c "curl success")" "3"
 }
 
 @test "Single file pattern through array" {
