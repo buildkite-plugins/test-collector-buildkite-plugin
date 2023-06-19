@@ -57,7 +57,8 @@ COMMON_CURL_OPTIONS='--form \* --form \* --form \* --form \* --form \* --form \*
   assert_output --partial "curl success 3"
 }
 
-@test "Uploads multiple files concurrently" {
+@test "Uploads multiple files concurrently does not break basic functionality" {
+   # would love to test functionality but can not do so due to limitations on bats-mock :(
   export BUILDKITE_PLUGIN_TEST_COLLECTOR_FILES='**/*/junit-*.xml'
   export BUILDKITE_PLUGIN_TEST_COLLECTOR_UPLOAD_CONCURRENCY='3'
 
