@@ -62,8 +62,7 @@ COMMON_CURL_OPTIONS='--form \* --form \* --form \* --form \* --form \* --form \*
   export BUILDKITE_PLUGIN_TEST_COLLECTOR_FILES='**/*/junit-*.xml'
   export BUILDKITE_PLUGIN_TEST_COLLECTOR_UPLOAD_CONCURRENCY='3'
 
-  stub curl \
-    "-X POST --silent --show-error --max-time 30 --form format=junit ${COMMON_CURL_OPTIONS} \* -H \* : echo \"curl success \${10}\""
+  stub curl "-X POST --silent --show-error --max-time 30 --form format=junit ${COMMON_CURL_OPTIONS} \* -H \* : echo \"curl success \${10}\""
 
   run "$PWD/hooks/pre-exit"
 
@@ -79,11 +78,11 @@ COMMON_CURL_OPTIONS='--form \* --form \* --form \* --form \* --form \* --form \*
 @test "Concurrency waits when the queue is full" {
   export BUILDKITE_PLUGIN_TEST_COLLECTOR_FILES='**/*/junit-*.xml'
   export BUILDKITE_PLUGIN_TEST_COLLECTOR_UPLOAD_CONCURRENCY='2'
-  export BUILDKITE_PLUGIN_TEST_LOGS='true'
+  export BUILDKITE_PLUGIN_TEST_COLLECTOR_DEBUG='true'
 
   stub curl \
-    "-X POST --silent --show-error --max-time 30 --form format=junit ${COMMON_CURL_OPTIONS} \* -H \* : sleep 3; echo \"curl success \${10}\"" \
-    "-X POST --silent --show-error --max-time 30 --form format=junit ${COMMON_CURL_OPTIONS} \* -H \* : echo \"curl success \${10}\""
+    "-X POST --silent --show-error --max-time 30 --form format=junit ${COMMON_CURL_OPTIONS} --form \* \* -H \* : sleep 3; echo \"curl success \${10}\"" \
+    "-X POST --silent --show-error --max-time 30 --form format=junit ${COMMON_CURL_OPTIONS} --form \* \* -H \* : echo \"curl success \${10}\""
 
   run "$PWD/hooks/pre-exit"
 
@@ -189,6 +188,31 @@ COMMON_CURL_OPTIONS='--form \* --form \* --form \* --form \* --form \* --form \*
   assert_output --partial "curl success"
 }
 
+@test "Concurrency gracefully handles command-group timeout" {
+  export BUILDKITE_PLUGIN_TEST_COLLECTOR_FILES='**/*/junit-*.xml'
+  export BUILDKITE_PLUGIN_TEST_COLLECTOR_UPLOAD_CONCURRENCY='2'
+  export BUILDKITE_PLUGIN_TEST_COLLECTOR_TIMEOUT='3'
+
+  stub kill "\*: echo 'killed command-group'"
+
+  stub curl \
+    "-X POST --silent --show-error --max-time 3 --form format=junit ${COMMON_CURL_OPTIONS} \* -H \* : sleep 60" \
+    "-X POST --silent --show-error --max-time 3 --form format=junit ${COMMON_CURL_OPTIONS} \* -H \* : echo 'curl success'"
+
+  run "$PWD/hooks/pre-exit"
+
+  unstub kill
+  unstub curl
+  
+
+  assert_success
+  assert_output --partial "Uploading './tests/fixtures/junit-1.xml'..."
+  assert_output --partial "Uploading './tests/fixtures/junit-2.xml'..."
+  assert_equal "$(echo "$output" | grep -c "has been running for more than")" "2"
+  assert_output --partial "Uploading './tests/fixtures/junit-3.xml'..."
+  assert_equal "$(echo "$output" | grep -c "curl success")" "1"
+}
+
 @test "Git available sends plugin version" {
   stub git "rev-parse --short HEAD : echo 'some-commit-id'"
   stub curl "-X POST --silent --show-error --max-time 30 --form format=junit ${COMMON_CURL_OPTIONS} --form \* \* -H \* : echo \"curl success with \${30}\""
@@ -278,7 +302,6 @@ COMMON_CURL_OPTIONS='--form \* --form \* --form \* --form \* --form \* --form \*
 @test "Concurrency gracefully handles failure" {
   export BUILDKITE_PLUGIN_TEST_COLLECTOR_FILES='**/*/junit-*.xml'
   export BUILDKITE_PLUGIN_TEST_COLLECTOR_UPLOAD_CONCURRENCY='2'
-  export BUILDKITE_PLUGIN_TEST_LOGS='true'
 
   stub curl \
     "-X POST --silent --show-error --max-time 30 --form format=junit ${COMMON_CURL_OPTIONS} \* -H \* : exit 10" \

@@ -9,7 +9,6 @@ ANNOTATE="${BUILDKITE_PLUGIN_TEST_COLLECTOR_ANNOTATION_LINK:-false}"
 UPLOAD_CONCURRENCY="${BUILDKITE_PLUGIN_TEST_COLLECTOR_UPLOAD_CONCURRENCY:-1}"
 REPORT_URLS_FILE=$(mktemp)
 CURL_RESP_FILE="${CURL_RESP_FILE:-response.json}"
-TEST_LOGGING="${BUILDKITE_PLUGIN_TEST_LOGS:-false}"
 DEBUG="false"
 
 if [[ "${BUILDKITE_PLUGIN_TEST_COLLECTOR_DEBUG:-}" =~ ^(true|on|1|always)$ ]]; then
@@ -170,7 +169,7 @@ find_and_upload() {
       iterations_waited=0
       while [[ "${#uploads_in_progress[@]}" -ge $UPLOAD_CONCURRENCY ]]; do
         iterations_waited=$((iterations_waited + 1))
-        if [[ "${DEBUG}" == "true" || "${TEST_LOGGING}" == "true" ]]; then
+        if [[ "${DEBUG}" == "true" ]]; then
           echo "Waiting for uploads to finish..."
         fi
 
