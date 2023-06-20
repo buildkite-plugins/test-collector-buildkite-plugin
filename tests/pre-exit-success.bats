@@ -63,7 +63,7 @@ COMMON_CURL_OPTIONS='--form \* --form \* --form \* --form \* --form \* --form \*
   export BUILDKITE_PLUGIN_TEST_COLLECTOR_UPLOAD_CONCURRENCY='3'
 
   stub curl \
-    "-X POST --silent --show-error --max-time 30 --form format=junit ${COMMON_CURL_OPTIONS} \* -H \* : echo curl success \${10};"
+    "-X POST --silent --show-error --max-time 30 --form format=junit ${COMMON_CURL_OPTIONS} \* -H \* : echo \"curl success \${10}\""
 
   run "$PWD/hooks/pre-exit"
 
@@ -73,7 +73,27 @@ COMMON_CURL_OPTIONS='--form \* --form \* --form \* --form \* --form \* --form \*
   assert_output --partial "Uploading './tests/fixtures/junit-1.xml'..."
   assert_output --partial "Uploading './tests/fixtures/junit-2.xml'..."
   assert_output --partial "Uploading './tests/fixtures/junit-3.xml'..."
-  
+  assert_equal "$(echo "$output" | grep -c "curl success")" "3"
+}
+
+@test "Concurrency waits when the queue is full" {
+  export BUILDKITE_PLUGIN_TEST_COLLECTOR_FILES='**/*/junit-*.xml'
+  export BUILDKITE_PLUGIN_TEST_COLLECTOR_UPLOAD_CONCURRENCY='2'
+  export BUILDKITE_PLUGIN_TEST_LOGS='true'
+
+  stub curl \
+    "-X POST --silent --show-error --max-time 30 --form format=junit ${COMMON_CURL_OPTIONS} \* -H \* : sleep 3; echo \"curl success \${10}\"" \
+    "-X POST --silent --show-error --max-time 30 --form format=junit ${COMMON_CURL_OPTIONS} \* -H \* : echo \"curl success \${10}\""
+
+  run "$PWD/hooks/pre-exit"
+
+  unstub curl
+
+  assert_success
+  assert_output --partial "Uploading './tests/fixtures/junit-1.xml'..."
+  assert_output --partial "Uploading './tests/fixtures/junit-2.xml'..."
+  assert_output --partial "Waiting for uploads to finish..."
+  assert_output --partial "Uploading './tests/fixtures/junit-3.xml'..."
   assert_equal "$(echo "$output" | grep -c "curl success")" "3"
 }
 
@@ -253,4 +273,25 @@ COMMON_CURL_OPTIONS='--form \* --form \* --form \* --form \* --form \* --form \*
   assert_success
   assert_output --partial "Uploading './tests/fixtures/junit-1.xml'..."
   assert_output --partial "Error uploading, will continue"
+}
+
+@test "Concurrency gracefully handles failure" {
+  export BUILDKITE_PLUGIN_TEST_COLLECTOR_FILES='**/*/junit-*.xml'
+  export BUILDKITE_PLUGIN_TEST_COLLECTOR_UPLOAD_CONCURRENCY='2'
+  export BUILDKITE_PLUGIN_TEST_LOGS='true'
+
+  stub curl \
+    "-X POST --silent --show-error --max-time 30 --form format=junit ${COMMON_CURL_OPTIONS} \* -H \* : exit 10" \
+    "-X POST --silent --show-error --max-time 30 --form format=junit ${COMMON_CURL_OPTIONS} \* -H \* : echo 'curl success'"
+
+  run "$PWD/hooks/pre-exit"
+
+  unstub curl
+
+  assert_success
+  assert_output --partial "Uploading './tests/fixtures/junit-1.xml'..."
+  assert_output --partial "Uploading './tests/fixtures/junit-2.xml'..."
+  assert_equal "$(echo "$output" | grep -c "Error uploading, will continue")" "2"
+  assert_output --partial "Uploading './tests/fixtures/junit-3.xml'..."
+  assert_equal "$(echo "$output" | grep -c "curl success")" "1"
 }
