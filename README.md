@@ -16,7 +16,7 @@ One or more patterns of files to upload to Test Analytics, relative to the root 
 
 Format of the file.
 
-Only the following values are allowed: `junit`, `json`
+Only the following values are allowed: `junit`, `json`.
 
 ### Optional
 
