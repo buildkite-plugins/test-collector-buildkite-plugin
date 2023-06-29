@@ -188,6 +188,25 @@ COMMON_CURL_OPTIONS='--form \* --form \* --form \* --form \* --form \* --form \*
   assert_output --partial "curl success"
 }
 
+@test "Concurrency gracefully handles command-group timeout" {
+  export BUILDKITE_PLUGIN_TEST_COLLECTOR_FILES='**/*/junit-*.xml'
+  export BUILDKITE_PLUGIN_TEST_COLLECTOR_UPLOAD_CONCURRENCY='2'
+  export BUILDKITE_PLUGIN_TEST_COLLECTOR_TIMEOUT='3'
+
+  stub curl "if [ \${10} != 'data=@\"./tests/fixtures/junit-3.xml\"' ]; then echo sleeping for \${10}; sleep 10 & wait \$!; else echo curl success \${10}; fi"
+
+  run "$PWD/hooks/pre-exit"
+
+  unstub curl
+  
+  assert_success
+  assert_output --partial "Uploading './tests/fixtures/junit-1.xml'..."
+  assert_output --partial "Uploading './tests/fixtures/junit-2.xml'..."
+  assert_output --partial "Error uploading, will continue"
+  assert_output --partial "Uploading './tests/fixtures/junit-3.xml'..."
+  assert_equal "$(echo "$output" | grep -c "curl success")" "1"
+}
+
 @test "Git available sends plugin version" {
   stub git "rev-parse --short HEAD : echo 'some-commit-id'"
   stub curl "-X POST --silent --show-error --max-time 30 --form format=junit ${COMMON_CURL_OPTIONS} --form \* \* -H \* : echo \"curl success with \${30}\""
