@@ -1,4 +1,4 @@
-# Test Collector Buildkite Plugin [![Build status](https://badge.buildkite.com/e77fce33cffd9045543fdba23c51a6aec8e8b6161fa4c136a3.svg)](https://buildkite.com/buildkite/plugins-test-collector)
+# Test Collector Buildkite Plugin [![Build status](https://badge.buildkite.com/e77fce33cffd9045543fdba23c51a6aec8e8b6161fa4c136a3.svg?branch=main)](https://buildkite.com/buildkite/plugins-test-collector)
 
 A Buildkite plugin for uploading [JSON](https://buildkite.com/docs/test-analytics/importing-json) or [JUnit](https://buildkite.com/docs/test-analytics/importing-junit-xml) files to [Buildkite Test Analytics](https://buildkite.com/test-analytics) ✨
 
