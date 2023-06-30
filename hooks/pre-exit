@@ -8,7 +8,7 @@ BASE_PATH="${BUILDKITE_PLUGIN_TEST_COLLECTOR_BASE_PATH:-.}"
 ANNOTATE="${BUILDKITE_PLUGIN_TEST_COLLECTOR_ANNOTATION_LINK:-false}"
 UPLOAD_CONCURRENCY="${BUILDKITE_PLUGIN_TEST_COLLECTOR_UPLOAD_CONCURRENCY:-1}"
 REPORT_URLS_FILE=$(mktemp)
-CURL_RESP_FILE="${CURL_RESP_FILE:-response.json}"
+CURL_RESP_FILE="${CURL_RESP_FILE:-}"
 DEBUG="false"
 
 if [[ "${BUILDKITE_PLUGIN_TEST_COLLECTOR_DEBUG:-}" =~ ^(true|on|1|always)$ ]]; then
@@ -95,6 +95,7 @@ save-report-url() {
 # Upload failures should not fail the build, and should have a sensible timeout,
 # so that Test Analytics availability doesn't affect build reliability.
 upload() {
+  local response_file="$4"
   local file="$3"
   local format="$2"
 
@@ -125,7 +126,7 @@ upload() {
   fi
 
   if [[ "$ANNOTATE" != "false" ]]; then
-    curl_args+=("-o" "${CURL_RESP_FILE}")
+    curl_args+=("-o" "${response_file}")
   fi
 
   curl_args+=("${BUILDKITE_PLUGIN_TEST_COLLECTOR_API_URL:-https://analytics-api.buildkite.com/v1/uploads}")
@@ -153,7 +154,7 @@ find_and_upload() {
   matching_files=()
   while IFS=$'' read -r matching_file ; do
     matching_files+=("$matching_file")
-  done < <("${FIND_CMD[@]}" "${BASE_PATH}" -path "${BASE_PATH}/${FILES_PATTERN}")
+  done < <("${FIND_CMD[@]}" "${BASE_PATH}" -path "${BASE_PATH}/${FILES_PATTERN}" | sort)
 
   if [[ "${#matching_files[@]}" -eq "0" ]]; then
     echo "No files found matching '${FILES_PATTERN}'"
@@ -190,13 +191,19 @@ find_and_upload() {
       # Spawn a subcommand group to allow parallel uploads
       {
         echo "Uploading '$file'..."
+
+        if [[ -n "${CURL_RESP_FILE}" ]]; then
+          response_file="${CURL_RESP_FILE}"
+        else
+          response_file="$(mktemp -t 'response.XXXXXX')"
+        fi
         
-        if ! upload "$TOKEN_VALUE" "$FORMAT" "${file}"; then
+        if ! upload "$TOKEN_VALUE" "$FORMAT" "${file}" "${response_file}"; then
           echo "Error uploading, will continue"
         fi
 
         if [[ "$ANNOTATE" != "false" ]]; then
-          save-report-url "${CURL_RESP_FILE}"
+          save-report-url "${response_file}"
         fi
 
         if [[ "${DEBUG}" == "true" ]]; then
