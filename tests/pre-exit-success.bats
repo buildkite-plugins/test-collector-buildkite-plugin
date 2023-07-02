@@ -62,6 +62,8 @@ COMMON_CURL_OPTIONS='--form \* --form \* --form \* --form \* --form \* --form \*
   export BUILDKITE_PLUGIN_TEST_COLLECTOR_FILES='**/*/junit-*.xml'
   export BUILDKITE_PLUGIN_TEST_COLLECTOR_UPLOAD_CONCURRENCY='3'
 
+  skip "bats-mock does not currently support concurrency, so we can't test this reliably"
+
   stub curl "-X POST --silent --show-error --max-time 30 --form format=junit ${COMMON_CURL_OPTIONS} \* -H \* : echo \"curl success \${10}\""
 
   run "$PWD/hooks/pre-exit"
