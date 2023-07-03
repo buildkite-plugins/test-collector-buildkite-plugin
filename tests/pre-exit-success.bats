@@ -57,6 +57,47 @@ COMMON_CURL_OPTIONS='--form \* --form \* --form \* --form \* --form \* --form \*
   assert_output --partial "curl success 3"
 }
 
+@test "Uploads multiple files concurrently does not break basic functionality" {
+   # would love to test functionality but can not do so due to limitations on bats-mock :(
+  export BUILDKITE_PLUGIN_TEST_COLLECTOR_FILES='**/*/junit-*.xml'
+  export BUILDKITE_PLUGIN_TEST_COLLECTOR_UPLOAD_CONCURRENCY='3'
+
+  skip "bats-mock does not currently support concurrency, so we can't test this reliably"
+
+  stub curl "-X POST --silent --show-error --max-time 30 --form format=junit ${COMMON_CURL_OPTIONS} \* -H \* : echo \"curl success \${10}\""
+
+  run "$PWD/hooks/pre-exit"
+
+  unstub curl
+
+  assert_success
+  assert_output --partial "Uploading './tests/fixtures/junit-1.xml'..."
+  assert_output --partial "Uploading './tests/fixtures/junit-2.xml'..."
+  assert_output --partial "Uploading './tests/fixtures/junit-3.xml'..."
+  assert_equal "$(echo "$output" | grep -c "curl success")" "3"
+}
+
+@test "Concurrency waits when the queue is full" {
+  export BUILDKITE_PLUGIN_TEST_COLLECTOR_FILES='**/*/junit-*.xml'
+  export BUILDKITE_PLUGIN_TEST_COLLECTOR_UPLOAD_CONCURRENCY='2'
+  export BUILDKITE_PLUGIN_TEST_COLLECTOR_DEBUG='true'
+
+  stub curl \
+    "-X POST --silent --show-error --max-time 30 --form format=junit ${COMMON_CURL_OPTIONS} --form \* \* -H \* : sleep 3; echo \"curl success \${10}\"" \
+    "-X POST --silent --show-error --max-time 30 --form format=junit ${COMMON_CURL_OPTIONS} --form \* \* -H \* : echo \"curl success \${10}\""
+
+  run "$PWD/hooks/pre-exit"
+
+  unstub curl
+
+  assert_success
+  assert_output --partial "Uploading './tests/fixtures/junit-1.xml'..."
+  assert_output --partial "Uploading './tests/fixtures/junit-2.xml'..."
+  assert_output --partial "Waiting for uploads to finish..."
+  assert_output --partial "Uploading './tests/fixtures/junit-3.xml'..."
+  assert_equal "$(echo "$output" | grep -c "curl success")" "3"
+}
+
 @test "Single file pattern through array" {
   export BUILDKITE_PLUGIN_TEST_COLLECTOR_FILES_0='**/*/junit-1.xml'
   unset BUILDKITE_PLUGIN_TEST_COLLECTOR_FILES
@@ -149,6 +190,25 @@ COMMON_CURL_OPTIONS='--form \* --form \* --form \* --form \* --form \* --form \*
   assert_output --partial "curl success"
 }
 
+@test "Concurrency gracefully handles command-group timeout" {
+  export BUILDKITE_PLUGIN_TEST_COLLECTOR_FILES='**/*/junit-*.xml'
+  export BUILDKITE_PLUGIN_TEST_COLLECTOR_UPLOAD_CONCURRENCY='2'
+  export BUILDKITE_PLUGIN_TEST_COLLECTOR_TIMEOUT='3'
+
+  stub curl "if [ \${10} != 'data=@\"./tests/fixtures/junit-3.xml\"' ]; then echo sleeping for \${10}; sleep 10 & wait \$!; else echo curl success \${10}; fi"
+
+  run "$PWD/hooks/pre-exit"
+
+  unstub curl
+  
+  assert_success
+  assert_output --partial "Uploading './tests/fixtures/junit-1.xml'..."
+  assert_output --partial "Uploading './tests/fixtures/junit-2.xml'..."
+  assert_equal "$(echo "$output" | grep -c "has been running for more than")" "2"
+  assert_output --partial "Uploading './tests/fixtures/junit-3.xml'..."
+  assert_equal "$(echo "$output" | grep -c "curl success")" "1"
+}
+
 @test "Git available sends plugin version" {
   stub git "rev-parse --short HEAD : echo 'some-commit-id'"
   stub curl "-X POST --silent --show-error --max-time 30 --form format=junit ${COMMON_CURL_OPTIONS} --form \* \* -H \* : echo \"curl success with \${30}\""
@@ -233,4 +293,24 @@ COMMON_CURL_OPTIONS='--form \* --form \* --form \* --form \* --form \* --form \*
   assert_success
   assert_output --partial "Uploading './tests/fixtures/junit-1.xml'..."
   assert_output --partial "Error uploading, will continue"
+}
+
+@test "Concurrency gracefully handles failure" {
+  export BUILDKITE_PLUGIN_TEST_COLLECTOR_FILES='**/*/junit-*.xml'
+  export BUILDKITE_PLUGIN_TEST_COLLECTOR_UPLOAD_CONCURRENCY='2'
+
+  stub curl \
+    "-X POST --silent --show-error --max-time 30 --form format=junit ${COMMON_CURL_OPTIONS} \* -H \* : exit 10" \
+    "-X POST --silent --show-error --max-time 30 --form format=junit ${COMMON_CURL_OPTIONS} \* -H \* : echo 'curl success'"
+
+  run "$PWD/hooks/pre-exit"
+
+  unstub curl
+
+  assert_success
+  assert_output --partial "Uploading './tests/fixtures/junit-1.xml'..."
+  assert_output --partial "Uploading './tests/fixtures/junit-2.xml'..."
+  assert_equal "$(echo "$output" | grep -c "Error uploading, will continue")" "2"
+  assert_output --partial "Uploading './tests/fixtures/junit-3.xml'..."
+  assert_equal "$(echo "$output" | grep -c "curl success")" "1"
 }

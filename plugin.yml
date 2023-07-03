@@ -35,6 +35,8 @@ configuration:
       type: integer
     annotation-link:
       type: boolean
+    upload-concurrency:
+      type: integer
   required:
     - files
     - format
