@@ -15,8 +15,8 @@ template: |
   steps:
     - command: test.sh
       plugins:
-  -     docker#$PREVIOUS_TAG:
-  +     docker#v$NEXT_MINOR_VERSION:
-          image: someimage
-          workdir: /app
+  -     test-collector#$PREVIOUS_TAG:
+  +     test-collector#v$NEXT_MINOR_VERSION:
+          files: "test/junit-*.xml"
+          format: "junit"
   ```
