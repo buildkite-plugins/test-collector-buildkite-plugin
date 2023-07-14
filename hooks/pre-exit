@@ -58,7 +58,7 @@ annotation-link() {
       REPORT_COUNT=$((REPORT_COUNT + 1))
     done
 
-    buildkite-agent annotate --style info --context "test-collector" "Check the test report(s) here: \n\n${REPORTS}"
+    echo -e "Check the test report(s) here: \n\n${REPORTS}" | buildkite-agent annotate --style info --context "test-collector"
   else
     echo "There are no report URLs to annotate."
   fi
