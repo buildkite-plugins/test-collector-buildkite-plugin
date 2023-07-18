@@ -28,7 +28,7 @@ COMMON_CURL_OPTIONS='--form \* --form \* --form \* --form \* --form \* --form \*
 
 @test "Annotates report link with jq" {
   stub curl "-X POST --silent --show-error --max-time 30 --form format=junit ${COMMON_CURL_OPTIONS} \* \* \* -H \* : echo 'curl success'"
-  stub buildkite-agent "annotate --style info --context \"test-collector\" \* : echo 'annotation success'"
+  stub buildkite-agent "annotate --style info --context \"test-collector\" : echo 'annotation success'"
   
   run "$PWD/hooks/pre-exit"
 
@@ -44,7 +44,7 @@ COMMON_CURL_OPTIONS='--form \* --form \* --form \* --form \* --form \* --form \*
 
 @test "Annotates report link without jq" {
   stub curl "-X POST --silent --show-error --max-time 30 --form format=junit ${COMMON_CURL_OPTIONS} \* \* \* -H \* : echo 'curl success'"
-  stub buildkite-agent "annotate --style info --context \"test-collector\"  \* : echo 'annotation success'"
+  stub buildkite-agent "annotate --style info --context \"test-collector\" : echo 'annotation success'"
   stub which "jq : exit 1"
   
   run "$PWD/hooks/pre-exit"
@@ -67,7 +67,7 @@ COMMON_CURL_OPTIONS='--form \* --form \* --form \* --form \* --form \* --form \*
     "-X POST --silent --show-error --max-time 30 --form format=junit ${COMMON_CURL_OPTIONS} \* \* \* -H \* : echo 'curl success 1'" \
     "-X POST --silent --show-error --max-time 30 --form format=junit ${COMMON_CURL_OPTIONS} \* \* \* -H \* : echo 'curl success 2'" \
     "-X POST --silent --show-error --max-time 30 --form format=junit ${COMMON_CURL_OPTIONS} \* \* \* -H \* : echo 'curl success 3'"
-  stub buildkite-agent "annotate --style info --context \"test-collector\"  \* : echo 'annotation success'"
+  stub buildkite-agent "annotate --style info --context \"test-collector\" : echo 'annotation success'"
   
 
   run "$PWD/hooks/pre-exit"
@@ -95,7 +95,7 @@ COMMON_CURL_OPTIONS='--form \* --form \* --form \* --form \* --form \* --form \*
     "-r '.run_url' \* : echo https://buildkite.com/organizations/example/analytics/suites/collector-test/runs/1" \
     "-r '.run_url' \* : echo https://buildkite.com/organizations/example/analytics/suites/collector-test/runs/2" \
     "-r '.run_url' \* : echo https://buildkite.com/organizations/example/analytics/suites/collector-test/runs/1"
-  stub buildkite-agent "annotate --style info --context \"test-collector\"  \* : echo 'annotation success' with params \${6}"
+  stub buildkite-agent "annotate --style info --context \"test-collector\" : echo 'annotation success' with stdin:; cat"
   
 
   run "$PWD/hooks/pre-exit"
@@ -117,7 +117,7 @@ COMMON_CURL_OPTIONS='--form \* --form \* --form \* --form \* --form \* --form \*
 @test "Annotates report link absorbs empty file error" {
   export CURL_RESP_FILE="response.json"
   stub curl "-X POST --silent --show-error --max-time 30 --form format=junit ${COMMON_CURL_OPTIONS} \* \* \* -H \* : echo 'curl success'"
-  stub buildkite-agent "annotate --style info --context \"test-collector\"  \* : echo 'annotation success'"
+  stub buildkite-agent "annotate --style info --context \"test-collector\" : echo 'annotation success'"
   
   run "$PWD/hooks/pre-exit"
 
