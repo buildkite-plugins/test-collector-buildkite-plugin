@@ -141,7 +141,7 @@ steps:
   - wait
 
   - label: "🔍 Test Analytics"
-    command: buildkite-agent artifact download tests-*.xml
+    command: buildkite-agent artifact download "tests-*.xml" .
     plugins:
       - test-collector#v1.10.0:
           files: "tests-*.xml"
