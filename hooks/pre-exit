@@ -137,7 +137,7 @@ upload() {
     echo curl "${curl_args[@]}"
   fi
 
-  curl "${curl_args[@]}" --header @<(printf 'Authorization: Token token=\"%s\"\n' "${TOKEN_VALUE}")
+  curl "${curl_args[@]}" -H @<(printf 'Authorization: Token token=\"%s\"\n' "${TOKEN_VALUE}")
 }
 
 # Runs the whole plugin logic for a particular find pattern
