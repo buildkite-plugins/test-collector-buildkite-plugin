@@ -1,4 +1,4 @@
-#!/bin/bash
+#!/usr/bin/env bash
 set -euo pipefail
 
 TOKEN_ENV_NAME="${BUILDKITE_PLUGIN_TEST_COLLECTOR_API_TOKEN_ENV_NAME:-BUILDKITE_ANALYTICS_TOKEN}"
@@ -58,7 +58,7 @@ annotation-link() {
       REPORT_COUNT=$((REPORT_COUNT + 1))
     done
 
-    echo -e "Check the test report(s) here: \n\n${REPORTS}" | buildkite-agent annotate --style info --context "test-collector"
+    echo -e "Check the ${BUILDKITE_LABEL} test report(s) here: \n\n${REPORTS}" | buildkite-agent annotate --style info --context "test-collector" --append
   else
     echo "There are no report URLs to annotate."
   fi
