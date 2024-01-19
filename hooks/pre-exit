@@ -107,22 +107,22 @@ upload() {
     "--form" "format=${format}"
     "--form" "data=@\"$file\""
     "--form" "run_env[CI]=buildkite"
-    "--form" "run_env[key]=$BUILDKITE_BUILD_ID"
-    "--form" "run_env[url]=$BUILDKITE_BUILD_URL"
-    "--form" "run_env[branch]=$BUILDKITE_BRANCH"
-    "--form" "run_env[commit_sha]=$BUILDKITE_COMMIT"
-    "--form" "run_env[number]=$BUILDKITE_BUILD_NUMBER"
-    "--form" "run_env[job_id]=$BUILDKITE_JOB_ID"
-    "--form" "run_env[message]=$BUILDKITE_MESSAGE"
+    "--form" "run_env[key]=\"$BUILDKITE_BUILD_ID\""
+    "--form" "run_env[url]=\"$BUILDKITE_BUILD_URL\""
+    "--form" "run_env[branch]=\"$BUILDKITE_BRANCH\""
+    "--form" "run_env[commit_sha]=\"$BUILDKITE_COMMIT\""
+    "--form" "run_env[number]=\"$BUILDKITE_BUILD_NUMBER\""
+    "--form" "run_env[job_id]=\"$BUILDKITE_JOB_ID\""
+    "--form" "run_env[message]=\"$BUILDKITE_MESSAGE\""
     "--form" "run_env[collector]=test-collector-buildkite-plugin"
   )
 
   if [[ "$DEBUG" == "true" ]]; then
-    curl_args+=("--form" "run_env[debug]=$DEBUG")
+    curl_args+=("--form" "run_env[debug]=\"$DEBUG\"")
   fi
 
   if [[ -n "$PLUGIN_VERSION" ]]; then
-    curl_args+=("--form" "run_env[version]=$PLUGIN_VERSION")
+    curl_args+=("--form" "run_env[version]=\"$PLUGIN_VERSION\"")
   fi
 
   if [[ "$ANNOTATE" != "false" ]]; then
