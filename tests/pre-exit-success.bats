@@ -220,7 +220,7 @@ COMMON_CURL_OPTIONS='--form \* --form \* --form \* --form \* --form \* --form \*
 
   assert_success
   assert_output --partial "curl success"
-  assert_output --partial "run_env[version]=some-commit-id"
+  assert_output --partial "run_env[version]=\"some-commit-id\""
 }
 
 @test "Follow links option enabled adds find option" {
