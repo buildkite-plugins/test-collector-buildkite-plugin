@@ -58,7 +58,7 @@ annotation-link() {
       REPORT_COUNT=$((REPORT_COUNT + 1))
     done
 
-    echo -e "Check the test report(s) here: \n\n${REPORTS}" | buildkite-agent annotate --style info --context "test-collector"
+    echo -e "Check the ${BUILDKITE_LABEL} test report(s) here: \n\n${REPORTS}" | buildkite-agent annotate --style info --context "test-collector" --append
   else
     echo "There are no report URLs to annotate."
   fi
@@ -162,7 +162,7 @@ find_and_upload() {
   else
     declare -a uploads_in_progress=()
     echo "Uploading '${#matching_files[@]}' files matching '${FILES_PATTERN}'"
-    
+
     # needs to be part of else for bash4.3 compatibility
     for file in "${matching_files[@]}"; do
       iterations_waited=0
@@ -195,7 +195,7 @@ find_and_upload() {
         else
           response_file="$(mktemp -t 'response.XXXXXX')"
         fi
-        
+
         if ! upload "$TOKEN_VALUE" "$FORMAT" "${file}" "${response_file}"; then
           echo "Error uploading, will continue"
         fi
