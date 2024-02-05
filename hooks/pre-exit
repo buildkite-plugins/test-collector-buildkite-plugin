@@ -1,4 +1,4 @@
-#!/usr/bin/env bash
+#!/bin/bash
 set -euo pipefail
 
 TOKEN_ENV_NAME="${BUILDKITE_PLUGIN_TEST_COLLECTOR_API_TOKEN_ENV_NAME:-BUILDKITE_ANALYTICS_TOKEN}"
@@ -162,7 +162,7 @@ find_and_upload() {
   else
     declare -a uploads_in_progress=()
     echo "Uploading '${#matching_files[@]}' files matching '${FILES_PATTERN}'"
-    
+
     # needs to be part of else for bash4.3 compatibility
     for file in "${matching_files[@]}"; do
       iterations_waited=0
@@ -195,7 +195,7 @@ find_and_upload() {
         else
           response_file="$(mktemp -t 'response.XXXXXX')"
         fi
-        
+
         if ! upload "$TOKEN_VALUE" "$FORMAT" "${file}" "${response_file}"; then
           echo "Error uploading, will continue"
         fi
