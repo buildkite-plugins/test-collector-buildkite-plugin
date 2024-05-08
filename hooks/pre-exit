@@ -73,16 +73,22 @@ save-report-url() {
     echo "Could not get the tests report URL from $json_file. File not found."
     return
   fi
-  # Could be easier with jq, but we don't want to require it
+
   if which jq >/dev/null; then
-      echo "Using jq to parse the report URL"
-      report_url=$(jq -r '.run_url' "${json_file}")
+    echo "Using jq to parse the report URL"
+    report_url=$(jq -r '.run_url' "${json_file}" 2>&1) # Capture stderr for error reporting
+    if [[ "$report_url" == "null" || "$report_url" == "" ]]; then
+      echo "jq parsing failed with the message: $report_url"
+      echo "Contents of $json_file:"
+      cat "$json_file"
+      return
+    fi
   else
-      echo "Not using jq to parse the report URL"
-      report_url=$(sed 's/.*"run_url" *: *"\([^"]*\)".*/\1/g' "${json_file}")
+    echo "jq not installed, attempting to parse with sed"
+    report_url=$(sed 's/.*"run_url" *: *"\([^"]*\)".*/\1/g' "${json_file}")
   fi
 
-  if [ "$report_url" == "null" ]; then
+  if [[ "$report_url" == "null" || "$report_url" == "" ]]; then
     echo "Could not get the tests report URL from $json_file. 'run_url' property not found."
     return
   fi

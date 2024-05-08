@@ -1,8 +1,8 @@
 #!/usr/bin/env bats
 
 # To debug stubs, uncomment these lines:
-# export CURL_STUB_DEBUG=/dev/tty
-# export GIT_STUB_DEBUG=/dev/tty
+#export CURL_STUB_DEBUG=/dev/tty
+#export GIT_STUB_DEBUG=/dev/tty
 
 setup() {
   load "$BATS_PLUGIN_PATH/load.bash"
@@ -53,7 +53,7 @@ COMMON_CURL_OPTIONS='--form \* --form \* --form \* --form \* --form \* --form \*
   assert_success
   assert_output --partial "Uploading './tests/fixtures/junit-1.xml'..."
   assert_output --partial "curl success"
-  assert_output --partial "Not using jq"
+  assert_output --partial "jq not installed, attempting to parse with sed"
   assert_output --partial "annotation success"
 
   unstub which
@@ -117,6 +117,7 @@ COMMON_CURL_OPTIONS='--form \* --form \* --form \* --form \* --form \* --form \*
   unstub jq
   unstub curl
 }
+
 @test "Annotates report link absorbs empty file error" {
   export CURL_RESP_FILE="response.json"
   stub curl "-X POST --silent --show-error --max-time 30 --form format=junit ${COMMON_CURL_OPTIONS} \* \* \* -H \* : echo 'curl success'"
@@ -141,7 +142,36 @@ COMMON_CURL_OPTIONS='--form \* --form \* --form \* --form \* --form \* --form \*
   assert_success
   assert_output --partial "Uploading './tests/fixtures/junit-1.xml'..."
   assert_output --partial "curl success"
-  assert_output --partial "'run_url' property not found"
+  assert_output --partial "jq parsing failed with the message: "
+  assert_output --partial "Contents of ./tests/fixtures/response_no_url.json:"
+  assert_output --partial "There are no report URLs to annotate"
+
+  unstub curl
+}
+
+@test "No annotation when 'run_url' property is missing in JSON response" {
+  export CURL_RESP_FILE="./tests/fixtures/response_missing_url.json"
+  stub curl "-X POST --silent --show-error --max-time 30 --form format=junit ${COMMON_CURL_OPTIONS} \* \* \* -H \* : echo 'curl success'"
+
+  run "$PWD/hooks/pre-exit"
+
+  assert_success
+  assert_output --partial "jq parsing failed with the message:"
+  assert_output --partial "Contents of ./tests/fixtures/response_missing_url.json:"
+  assert_output --partial "There are no report URLs to annotate"
+
+  unstub curl
+}
+
+@test "No annotation when 'run_url' is null in JSON response" {
+  export CURL_RESP_FILE="./tests/fixtures/response_null_url.json"
+  stub curl "-X POST --silent --show-error --max-time 30 --form format=junit ${COMMON_CURL_OPTIONS} \* \* \* -H \* : echo 'curl success'"
+
+  run "$PWD/hooks/pre-exit"
+
+  assert_success
+  assert_output --partial "jq parsing failed with the message: null"
+  assert_output --partial "Contents of ./tests/fixtures/response_null_url.json:"
   assert_output --partial "There are no report URLs to annotate"
 
   unstub curl
