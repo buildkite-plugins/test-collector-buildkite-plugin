@@ -176,3 +176,20 @@ COMMON_CURL_OPTIONS='--form \* --form \* --form \* --form \* --form \* --form \*
 
   unstub curl
 }
+
+@test "Fallback to sed when jq is missing" {
+  stub which "jq : exit 1"
+  stub curl "-X POST --silent --show-error --max-time 30 --form format=junit ${COMMON_CURL_OPTIONS} \* \* \* -H \* : echo 'curl success'"
+  stub buildkite-agent "annotate --style info --context \"test-collector\" --append : echo 'annotation success'"
+
+  run "$PWD/hooks/pre-exit"
+
+  assert_success
+  assert_output --partial "jq not installed, attempting to parse with sed"
+  assert_output --partial "curl success"
+  assert_output --partial "annotation success"
+
+  unstub which
+  unstub curl
+}
+
