@@ -96,6 +96,14 @@ The number of concurrent file uploads to perform to the Buildkite analytics API.
 
 Default value: `1`
 
+## Requirements
+
+This plugin requires `jq` for parsing JSON data. If `jq` is not found on the agent, `sed` will be used as a fallback. Ensure that `sed` is also available to handle scenarios where `jq` cannot be used.
+
+## Fallback Behavior
+
+If `jq` is unavailable, the plugin will attempt to parse the results using `sed`. This ensures that the plugin remains functional even if the preferred JSON parser is missing.
+
 ## Examples
 
 ### Upload a JUnit file
