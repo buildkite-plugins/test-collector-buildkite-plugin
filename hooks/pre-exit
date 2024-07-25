@@ -190,7 +190,7 @@ find_and_upload() {
 
         for index in "${!uploads_in_progress[@]}"; do
           # Note: kill -0 does not kill the pid, it provides a *nix compatible way to test the pid is responding.
-          if ! kill -0 "${uploads_in_progress[index]}" > /dev/null; then
+          if ! kill -0 "${uploads_in_progress[index]}" > /dev/null 2>&1; then
             unset 'uploads_in_progress[index]'
           elif [[ "$iterations_waited" -gt $TIMEOUT ]]; then
             echo "Upload '${uploads_in_progress[index]}' has been running for more than '${TIMEOUT}' seconds, killing it"
