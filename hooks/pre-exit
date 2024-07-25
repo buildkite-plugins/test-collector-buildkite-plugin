@@ -47,7 +47,8 @@ fi
 # Creates the annotations with all the report URLs
 annotation-link() {
   local json_file="$1"
-  mapfile -t REPORT_URLS < <(sort "${json_file}" | uniq)
+  REPORT_URLS=()
+  while IFS= read -r line; do REPORT_URLS+=("${line}"); done < <(sort "${json_file}" | uniq)
 
   local REPORTS=""
   REPORT_COUNT=1
