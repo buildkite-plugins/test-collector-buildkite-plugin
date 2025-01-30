@@ -78,6 +78,18 @@ This should allow you to use a special exit code to soft-fail on when no files t
 
 Default value: `1`
 
+#### `tags` (array of strings)
+
+A list of tags to apply to all test results in the upload, in the format `key=value`.
+
+For example:
+
+```yaml
+tags:
+  - "arch=arm64"
+  - "language.version=1.2.3"
+```
+
 #### `timeout` (number)
 
 Maximum number of seconds to wait for each file to upload before timing out.
