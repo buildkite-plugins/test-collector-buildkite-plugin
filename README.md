@@ -115,7 +115,7 @@ steps:
   - label: "🔨 Test"
     command: "make test"
     plugins:
-      - test-collector#v1.10.1:
+      - test-collector#v1.10.2:
           files: "test/junit-*.xml"
           format: "junit"
 ```
@@ -129,7 +129,7 @@ steps:
   - label: "🔨 Test"
     command: "make test"
     plugins:
-      - test-collector#v1.10.1:
+      - test-collector#v1.10.2:
           files:
             - "test-data-*.json"
           format: "json"
@@ -151,7 +151,7 @@ steps:
   - label: "🔍 Test Analytics"
     command: buildkite-agent artifact download "tests-*.xml" .
     plugins:
-      - test-collector#v1.10.1:
+      - test-collector#v1.10.2:
           files: "tests-*.xml"
           format: "junit"
 ```
@@ -165,7 +165,7 @@ steps:
   - label: "🔨 Test"
     command: "make test"
     plugins:
-      - test-collector#v1.10.1:
+      - test-collector#v1.10.2:
           files: "test-data-*.json"
           format: "json"
           branches: "-qa$"
@@ -178,7 +178,7 @@ steps:
   - label: "🔨 Test"
     command: "make test"
     plugins:
-      - test-collector#v1.10.1:
+      - test-collector#v1.10.2:
           files: "test-data-*.json"
           format: "json"
           exclude-branches: "^legacy$"
@@ -191,7 +191,7 @@ steps:
   - label: "🔨 Test"
     command: "make test"
     plugins:
-      - test-collector#v1.10.1:
+      - test-collector#v1.10.2:
           files: "test-data-*.json"
           format: "json"
           branches: "^stage-"
