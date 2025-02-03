@@ -127,7 +127,7 @@ steps:
   - label: "🔨 Test"
     command: "make test"
     plugins:
-      - test-collector#v1.10.2:
+      - test-collector#v1.11.0:
           files: "test/junit-*.xml"
           format: "junit"
 ```
@@ -141,7 +141,7 @@ steps:
   - label: "🔨 Test"
     command: "make test"
     plugins:
-      - test-collector#v1.10.2:
+      - test-collector#v1.11.0:
           files:
             - "test-data-*.json"
           format: "json"
@@ -163,7 +163,7 @@ steps:
   - label: "🔍 Test Analytics"
     command: buildkite-agent artifact download "tests-*.xml" .
     plugins:
-      - test-collector#v1.10.2:
+      - test-collector#v1.11.0:
           files: "tests-*.xml"
           format: "junit"
 ```
@@ -177,7 +177,7 @@ steps:
   - label: "🔨 Test"
     command: "make test"
     plugins:
-      - test-collector#v1.10.2:
+      - test-collector#v1.11.0:
           files: "test-data-*.json"
           format: "json"
           branches: "-qa$"
@@ -190,7 +190,7 @@ steps:
   - label: "🔨 Test"
     command: "make test"
     plugins:
-      - test-collector#v1.10.2:
+      - test-collector#v1.11.0:
           files: "test-data-*.json"
           format: "json"
           exclude-branches: "^legacy$"
@@ -203,7 +203,7 @@ steps:
   - label: "🔨 Test"
     command: "make test"
     plugins:
-      - test-collector#v1.10.2:
+      - test-collector#v1.11.0:
           files: "test-data-*.json"
           format: "json"
           branches: "^stage-"
@@ -218,6 +218,8 @@ You can use the [bk cli](https://github.com/buildkite/cli) to run the [pipeline]
 ```bash
 bk local run
 ```
+
+:warning: `bk local run` was removed on v3. You can use v2 and get the binaries from https://github.com/buildkite/cli/releases/tag/v2.0.0
 
 Or if you want to run just the tests, you can use the docker [Plugin Tester](https://github.com/buildkite-plugins/buildkite-plugin-tester):
 
