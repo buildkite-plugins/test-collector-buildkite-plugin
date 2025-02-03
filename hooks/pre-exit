@@ -131,6 +131,22 @@ upload() {
     "--form" "run_env[collector]=test-collector-buildkite-plugin"
   )
 
+  if [ -n "${BUILDKITE_PLUGIN_TEST_COLLECTOR_TAGS:-}" ]; then
+    curl_args+=("--form" "$(build_tag_form_field "${BUILDKITE_PLUGIN_TEST_COLLECTOR_TAGS}")")
+  elif [ -n "${BUILDKITE_PLUGIN_TEST_COLLECTOR_TAGS_0:-}" ]; then
+    prefix="BUILDKITE_PLUGIN_TEST_COLLECTOR_TAGS"
+    parameter="${prefix}_0"
+    if [ -n "${!parameter:-}" ]; then
+      i=0
+      parameter="${prefix}_${i}"
+      while [ -n "${!parameter:-}" ]; do
+        curl_args+=("--form" "$(build_tag_form_field "${!parameter}")")
+        i=$((i+1))
+        parameter="${prefix}_${i}"
+      done
+    fi
+  fi
+
   if [[ "$DEBUG" == "true" ]]; then
     curl_args+=("--form" "run_env[debug]=\"$DEBUG\"")
   fi
@@ -152,6 +168,14 @@ upload() {
   fi
 
   curl "${curl_args[@]}" -H @<(printf 'Authorization: Token token=\"%s\"\n' "${TOKEN_VALUE}")
+}
+
+# input: "key=value"
+# output: "tags[key]=value"
+build_tag_form_field() {
+  local key="${1%%=*}" # longest matching trailing pattern deleted; keep the part before the first "="
+  local value="${1#*=}" # shortest matching leading pattern deleted; keep the part after the first "="
+  echo "tags[$key]=$value"
 }
 
 # Runs the whole plugin logic for a particular find pattern

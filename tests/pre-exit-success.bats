@@ -135,6 +135,38 @@ COMMON_CURL_OPTIONS='--form \* --form \* --form \* --form \* --form \* --form \*
   unstub curl
 }
 
+@test "Single tag from string" {
+  export BUILDKITE_PLUGIN_TEST_COLLECTOR_TAGS="hello=world"
+
+  stub curl \
+    "-X POST --silent --show-error --max-time 30 --form format=junit ${COMMON_CURL_OPTIONS} --form tags[hello]=world \* -H \* : echo 'curl success'"
+
+  run "$PWD/hooks/pre-exit"
+
+  assert_success
+  assert_output --partial "Uploading './tests/fixtures/junit-1.xml'..."
+  assert_output --partial "curl success"
+
+  unstub curl
+}
+
+@test "Multiple tags from array" {
+  export BUILDKITE_PLUGIN_TEST_COLLECTOR_TAGS_0="hello=world"
+  export BUILDKITE_PLUGIN_TEST_COLLECTOR_TAGS_1="foo=bar=baz"
+  unset BUILDKITE_PLUGIN_TEST_COLLECTOR_TAGS
+
+  stub curl \
+    "-X POST --silent --show-error --max-time 30 --form format=junit ${COMMON_CURL_OPTIONS} --form tags[hello]=world --form tags[foo]=bar=baz \* -H \* : echo 'curl success'"
+
+  run "$PWD/hooks/pre-exit"
+
+  assert_success
+  assert_output --partial "Uploading './tests/fixtures/junit-1.xml'..."
+  assert_output --partial "curl success"
+
+  unstub curl
+}
+
 @test "Debug true prints the curl info w/o token" {
   export BUILDKITE_PLUGIN_TEST_COLLECTOR_DEBUG="true"
 
