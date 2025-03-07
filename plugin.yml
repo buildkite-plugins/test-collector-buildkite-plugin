@@ -29,6 +29,8 @@ configuration:
       enum:
         - json
         - junit
+    job-id:
+      type: string
     missing-error:
       type: integer
     timeout:
