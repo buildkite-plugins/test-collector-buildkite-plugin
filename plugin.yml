@@ -31,6 +31,10 @@ configuration:
         - junit
     missing-error:
       type: integer
+    tags:
+      type: array
+      items:
+        type: string
     timeout:
       type: integer
     annotation-link:
