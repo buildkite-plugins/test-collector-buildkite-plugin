@@ -70,6 +70,10 @@ Important:
 
 By default the plugin will not follow symlinked folders, set this option to `true` to do so. This will add the `-L` option to the `find` command used to get the files to upload.
 
+#### `job-id` (string)
+
+The buildkite job id for which the results should be linked to. Defaults to the current job.
+
 #### `missing-error` (integer)
 
 Exit code of the hook when no files are found to upload as long as the step's command has not failed already.
@@ -153,7 +157,7 @@ You can also use build artifacts generated in a previous step:
 
 ```yaml
 steps:
-  # Run tests and upload 
+  # Run tests and upload
   - label: "🔨 Test"
     command: "make test --junit=tests-N.xml"
     artifact_paths: "tests-*.xml"
