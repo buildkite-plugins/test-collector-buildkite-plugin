@@ -104,10 +104,10 @@ save-report-url() {
 }
 
 
-# Uploads files to the Test Analytics API
+# Uploads files to the Buildkite Test Engine API
 #
 # Upload failures should not fail the build, and should have a sensible timeout,
-# so that Test Analytics availability doesn't affect build reliability.
+# so that Test Engine availability doesn't affect build reliability.
 upload() {
   local response_file="$4"
   local file="$3"
