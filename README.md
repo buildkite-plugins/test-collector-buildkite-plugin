@@ -1,6 +1,6 @@
 # Test Collector Buildkite Plugin [![Build status](https://badge.buildkite.com/e77fce33cffd9045543fdba23c51a6aec8e8b6161fa4c136a3.svg?branch=main)](https://buildkite.com/buildkite/plugins-test-collector)
 
-A Buildkite plugin for uploading [JSON](https://buildkite.com/docs/test-analytics/importing-json) or [JUnit](https://buildkite.com/docs/test-analytics/importing-junit-xml) files to [Buildkite Test Analytics](https://buildkite.com/test-analytics) ✨
+A Buildkite plugin for uploading [JSON](https://buildkite.com/docs/test-engine/importing-json) or [JUnit](https://buildkite.com/docs/test-engine/importing-junit-xml) files to [Buildkite Test Engine](https://buildkite.com/platform/test-engine/) ✨
 
 ## Options
 
@@ -10,7 +10,7 @@ These are all the options available to configure this plugin's behaviour.
 
 #### `files` (string or array of strings)
 
-One or more patterns of files to upload to Test Analytics, relative to the root of the searching path (`./` by default). May contain `*` to match any number of characters of any type (unlike shell expansions, it will match `/` and `.` if necessary). Can be either a single pattern in a string or any number of them in an array.
+One or more patterns of files to upload to Test Engine, relative to the root of the searching path (`./` by default). May contain `*` to match any number of characters of any type (unlike shell expansions, it will match `/` and `.` if necessary). Can be either a single pattern in a string or any number of them in an array.
 
 #### `format` (string)
 
@@ -22,7 +22,7 @@ Only the following values are allowed: `junit`, `json`
 
 #### `api-token-env-name` (string)
 
-Name of the environment variable that contains the Test Analytics API token.
+Name of the environment variable that contains the Test Engine API token.
 
 Default value: `BUILDKITE_ANALYTICS_TOKEN`
 
@@ -104,7 +104,7 @@ Default value: `false`
 
 #### `upload-concurrency`(number)
 
-The number of concurrent file uploads to perform to the Buildkite analytics API.
+The number of concurrent file uploads to perform to the Buildkite Test Engine API.
 
 Default value: `1`
 
@@ -120,7 +120,7 @@ If `jq` is unavailable, the plugin will attempt to parse the results using `sed`
 
 ### Upload a JUnit file
 
-To upload a JUnit file to Test Analytics from a build step:
+To upload a JUnit file to Test Engine from a build step:
 
 ```yaml
 steps:
@@ -134,7 +134,7 @@ steps:
 
 ### Upload a JSON file
 
-To upload a JSON file to Test Analytics from a build step:
+To upload a JSON file to Test Engine from a build step:
 
 ```yaml
 steps:
@@ -160,7 +160,7 @@ steps:
 
   - wait
 
-  - label: "🔍 Test Analytics"
+  - label: "🔍 Test Engine"
     command: buildkite-agent artifact download "tests-*.xml" .
     plugins:
       - test-collector#v1.11.0:
