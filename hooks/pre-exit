@@ -7,6 +7,7 @@ TIMEOUT="${BUILDKITE_PLUGIN_TEST_COLLECTOR_TIMEOUT:-30}"
 BASE_PATH="${BUILDKITE_PLUGIN_TEST_COLLECTOR_BASE_PATH:-.}"
 ANNOTATE="${BUILDKITE_PLUGIN_TEST_COLLECTOR_ANNOTATION_LINK:-false}"
 UPLOAD_CONCURRENCY="${BUILDKITE_PLUGIN_TEST_COLLECTOR_UPLOAD_CONCURRENCY:-1}"
+JOB_ID="${BUILDKITE_PLUGIN_TEST_COLLECTOR_JOB_ID:-$BUILDKITE_JOB_ID}"
 REPORT_URLS_FILE=$(mktemp)
 CURL_RESP_FILE="${CURL_RESP_FILE:-}"
 DEBUG="false"
@@ -126,7 +127,7 @@ upload() {
     "--form" "run_env[branch]=\"$BUILDKITE_BRANCH\""
     "--form" "run_env[commit_sha]=\"$BUILDKITE_COMMIT\""
     "--form" "run_env[number]=\"$BUILDKITE_BUILD_NUMBER\""
-    "--form" "run_env[job_id]=\"$BUILDKITE_JOB_ID\""
+    "--form" "run_env[job_id]=\"$JOB_ID\""
     "--form" "run_env[message]=\"$BUILDKITE_MESSAGE\""
     "--form" "run_env[collector]=test-collector-buildkite-plugin"
   )
