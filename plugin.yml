@@ -5,6 +5,8 @@ requirements:
   - curl
 configuration:
   properties:
+    annotation-link:
+      type: boolean
     api-token-env-name:
       type: string
     api-url:
@@ -37,10 +39,10 @@ configuration:
         type: string
     timeout:
       type: integer
-    annotation-link:
-      type: boolean
     upload-concurrency:
       type: integer
+    use-triggered-from:
+      type: boolean
   required:
     - files
     - format

@@ -1,6 +1,11 @@
 #!/bin/bash
 set -euo pipefail
 
+DIR="$(cd "$( dirname "${BASH_SOURCE[0]}" )" && pwd)"
+
+# shellcheck source=lib/shared.bash
+. "$DIR/../lib/shared.bash"
+
 TOKEN_ENV_NAME="${BUILDKITE_PLUGIN_TEST_COLLECTOR_API_TOKEN_ENV_NAME:-BUILDKITE_ANALYTICS_TOKEN}"
 FORMAT="${BUILDKITE_PLUGIN_TEST_COLLECTOR_FORMAT:-}"
 TIMEOUT="${BUILDKITE_PLUGIN_TEST_COLLECTOR_TIMEOUT:-30}"
@@ -103,7 +108,6 @@ save-report-url() {
   echo "$report_url" >> "$REPORT_URLS_FILE"
 }
 
-
 # Uploads files to the Buildkite Test Engine API
 #
 # Upload failures should not fail the build, and should have a sensible timeout,
@@ -113,6 +117,21 @@ upload() {
   local file="$3"
   local format="$2"
 
+  local key="$BUILDKITE_BUILD_ID"
+  local url="$BUILDKITE_BUILD_URL"
+  local number="$BUILDKITE_BUILD_NUMBER"
+  local job_id="$BUILDKITE_JOB_ID"
+
+  if [[
+    ${BUILDKITE_PLUGIN_TEST_COLLECTOR_USE_TRIGGERED_FROM:-false} != "false" &&
+    -n $BUILDKITE_TRIGGERED_FROM_BUILD_ID
+  ]]; then
+    key="$BUILDKITE_TRIGGERED_FROM_BUILD_ID"
+    url=$(infer_triggered_from_build_url)
+    number="$BUILDKITE_TRIGGERED_FROM_BUILD_NUMBER"
+    job_id=""
+  fi
+
   local curl_args=(
     "-X" "POST"
     "--silent"
@@ -121,12 +140,12 @@ upload() {
     "--form" "format=${format}"
     "--form" "data=@\"$file\""
     "--form" "run_env[CI]=buildkite"
-    "--form" "run_env[key]=\"$BUILDKITE_BUILD_ID\""
-    "--form" "run_env[url]=\"$BUILDKITE_BUILD_URL\""
+    "--form" "run_env[key]=\"$key\""
+    "--form" "run_env[url]=\"$url\""
     "--form" "run_env[branch]=\"$BUILDKITE_BRANCH\""
     "--form" "run_env[commit_sha]=\"$BUILDKITE_COMMIT\""
-    "--form" "run_env[number]=\"$BUILDKITE_BUILD_NUMBER\""
-    "--form" "run_env[job_id]=\"$BUILDKITE_JOB_ID\""
+    "--form" "run_env[number]=\"$number\""
+    "--form" "run_env[job_id]=\"$job_id\""
     "--form" "run_env[message]=\"$BUILDKITE_MESSAGE\""
     "--form" "run_env[collector]=test-collector-buildkite-plugin"
   )
