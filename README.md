@@ -20,6 +20,12 @@ Only the following values are allowed: `junit`, `json`
 
 ### Optional
 
+#### `annotation-link`(boolean)
+
+Adds an annotation to the build run with a link to the uploaded report.
+
+Default value: `false`
+
 #### `api-token-env-name` (string)
 
 Name of the environment variable that contains the Test Engine API token.
@@ -96,17 +102,17 @@ Maximum number of seconds to wait for each file to upload before timing out.
 
 Default value: `30`
 
-#### `annotation-link`(boolean)
-
-Adds an annotation to the build run with a link to the uploaded report.
-
-Default value: `false`
-
 #### `upload-concurrency`(number)
 
 The number of concurrent file uploads to perform to the Buildkite Test Engine API.
 
 Default value: `1`
+
+#### `use-triggered-from` (boolean)
+
+Uses the `BUILDKITE_TRIGGERED_FROM_…` environment variables to attribute the uploaded tests to the build that triggered this one.
+
+Default value: `false`
 
 ## Requirements
 
@@ -153,7 +159,7 @@ You can also use build artifacts generated in a previous step:
 
 ```yaml
 steps:
-  # Run tests and upload 
+  # Run tests and upload
   - label: "🔨 Test"
     command: "make test --junit=tests-N.xml"
     artifact_paths: "tests-*.xml"
