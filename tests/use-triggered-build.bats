@@ -7,6 +7,9 @@
 setup() {
   load "$BATS_PLUGIN_PATH/load.bash"
 
+  # run --separate-stderr requires bats 1.5.0 and produces a warning without this declaration
+  bats_require_minimum_version 1.5.0
+
   . "lib/shared.bash"
 
   # Build env
@@ -31,9 +34,10 @@ setup() {
   assert_output "https://buildkite.com/buildkite-plugins/upstream/builds/456"
 }
 
-@test "Without triggered_from data falls back to current build URL" {
-  run infer_triggered_from_build_url
+@test "Without triggered_from data produces empty string" {
+  run --separate-stderr infer_triggered_from_build_url
 
   assert_success
-  assert_output "https://buildkite.com/buildkite-plugins/test-collector-buildkite-plugin/builds/123"
+  output=$stdout assert_output ""
+  output=$stderr assert_output "warning: missing details to infer triggerer-from URL"
 }

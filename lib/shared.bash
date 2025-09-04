@@ -10,8 +10,8 @@ infer_triggered_from_build_url() {
     -z $BUILDKITE_TRIGGERED_FROM_BUILD_PIPELINE_SLUG ||
     -z $BUILDKITE_TRIGGERED_FROM_BUILD_NUMBER
   ]]; then
-    # fall back to the current build URL
-    echo "$BUILDKITE_BUILD_URL"
+    echo "warning: missing details to infer triggerer-from URL" >&2
+    echo ""
     return
   fi
 
