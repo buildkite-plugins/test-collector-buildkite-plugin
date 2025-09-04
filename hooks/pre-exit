@@ -130,6 +130,8 @@ upload() {
     url=$(infer_triggered_from_build_url)
     number="$BUILDKITE_TRIGGERED_FROM_BUILD_NUMBER"
     job_id=""
+
+    echo "use-triggered-from: associating upload with $url"
   fi
 
   local curl_args=(
@@ -274,6 +276,8 @@ find_and_upload() {
     wait "${uploads_in_progress[@]}"
   fi
 }
+
+echo "Buildkite Test Engine"
 
 if [ -n "${BUILDKITE_PLUGIN_TEST_COLLECTOR_FILES:-}" ]; then
   find_and_upload "${BUILDKITE_PLUGIN_TEST_COLLECTOR_FILES}"
