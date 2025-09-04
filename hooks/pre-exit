@@ -16,6 +16,12 @@ REPORT_URLS_FILE=$(mktemp)
 CURL_RESP_FILE="${CURL_RESP_FILE:-}"
 DEBUG="false"
 
+# these run_env values may be rewritten prior to upload
+RUN_ENV_KEY="$BUILDKITE_BUILD_ID"
+RUN_ENV_URL="$BUILDKITE_BUILD_URL"
+RUN_ENV_NUMBER="$BUILDKITE_BUILD_NUMBER"
+RUN_ENV_JOB_ID="$BUILDKITE_JOB_ID"
+
 if [[ "${BUILDKITE_PLUGIN_TEST_COLLECTOR_DEBUG:-}" =~ ^(true|on|1|always)$ ]]; then
   DEBUG="true"
 elif [[ "${BUILDKITE_ANALYTICS_DEBUG_ENABLED:-}" =~ ^(true|on|1|always)$ ]]; then
@@ -117,23 +123,6 @@ upload() {
   local file="$3"
   local format="$2"
 
-  local key="$BUILDKITE_BUILD_ID"
-  local url="$BUILDKITE_BUILD_URL"
-  local number="$BUILDKITE_BUILD_NUMBER"
-  local job_id="$BUILDKITE_JOB_ID"
-
-  if [[
-    ${BUILDKITE_PLUGIN_TEST_COLLECTOR_USE_TRIGGERED_FROM:-false} != "false" &&
-    -n $BUILDKITE_TRIGGERED_FROM_BUILD_ID
-  ]]; then
-    key="$BUILDKITE_TRIGGERED_FROM_BUILD_ID"
-    url=$(infer_triggered_from_build_url)
-    number="$BUILDKITE_TRIGGERED_FROM_BUILD_NUMBER"
-    job_id=""
-
-    echo "use-triggered-from: associating upload with $url"
-  fi
-
   local curl_args=(
     "-X" "POST"
     "--silent"
@@ -142,12 +131,12 @@ upload() {
     "--form" "format=${format}"
     "--form" "data=@\"$file\""
     "--form" "run_env[CI]=buildkite"
-    "--form" "run_env[key]=\"$key\""
-    "--form" "run_env[url]=\"$url\""
+    "--form" "run_env[key]=\"$RUN_ENV_KEY\""
+    "--form" "run_env[url]=\"$RUN_ENV_URL\""
     "--form" "run_env[branch]=\"$BUILDKITE_BRANCH\""
     "--form" "run_env[commit_sha]=\"$BUILDKITE_COMMIT\""
-    "--form" "run_env[number]=\"$number\""
-    "--form" "run_env[job_id]=\"$job_id\""
+    "--form" "run_env[number]=\"$RUN_ENV_NUMBER\""
+    "--form" "run_env[job_id]=\"$RUN_ENV_JOB_ID\""
     "--form" "run_env[message]=\"$BUILDKITE_MESSAGE\""
     "--form" "run_env[collector]=test-collector-buildkite-plugin"
   )
@@ -220,7 +209,7 @@ find_and_upload() {
     fi
   else
     declare -a uploads_in_progress=()
-    echo "Uploading '${#matching_files[@]}' files matching '${FILES_PATTERN}'"
+    echo "Uploading ${#matching_files[@]} files matching '${FILES_PATTERN}'"
 
     # needs to be part of else for bash4.3 compatibility
     for file in "${matching_files[@]}"; do
@@ -277,7 +266,11 @@ find_and_upload() {
   fi
 }
 
+########################################
+
 echo "Buildkite Test Engine"
+
+apply_use_triggered_from
 
 if [ -n "${BUILDKITE_PLUGIN_TEST_COLLECTOR_FILES:-}" ]; then
   find_and_upload "${BUILDKITE_PLUGIN_TEST_COLLECTOR_FILES}"
