@@ -96,6 +96,10 @@ tags:
   - "language.version=1.2.3"
 ```
 
+Every upload is also automatically tagged with `ci.worker.id`, the ID of the
+agent that ran it, so failures can be grouped by worker. Configure your own
+`ci.worker.id` tag above to override this.
+
 #### `timeout` (number)
 
 Maximum number of seconds to wait for each file to upload before timing out.

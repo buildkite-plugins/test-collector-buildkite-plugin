@@ -167,6 +167,66 @@ COMMON_CURL_OPTIONS='--form \* --form \* --form \* --form \* --form \* --form \*
   unstub curl
 }
 
+@test "Tags executions with the agent ID" {
+  export BUILDKITE_AGENT_ID="an-agent-id"
+
+  stub curl \
+    "-X POST --silent --show-error --max-time 30 --form format=junit ${COMMON_CURL_OPTIONS} --form tags[ci.worker.id]=an-agent-id \* -H \* : echo 'curl success'"
+
+  run "$PWD/hooks/pre-exit"
+
+  unstub curl
+
+  assert_success
+  assert_output --partial "curl success"
+}
+
+@test "Omits the agent ID tag when BUILDKITE_AGENT_ID is unset" {
+  unset BUILDKITE_AGENT_ID
+
+  stub curl \
+    "-X POST --silent --show-error --max-time 30 --form format=junit ${COMMON_CURL_OPTIONS} \* -H \* : echo 'curl success'"
+
+  run "$PWD/hooks/pre-exit"
+
+  unstub curl
+
+  assert_success
+  assert_output --partial "curl success"
+}
+
+@test "An explicitly configured ci.worker.id tag overrides the automatic one" {
+  export BUILDKITE_AGENT_ID="an-agent-id"
+  export BUILDKITE_PLUGIN_TEST_COLLECTOR_TAGS="ci.worker.id=custom-worker"
+
+  # Both fields go out on the wire; ta-ingestion resolves the duplicate
+  # multipart field name by taking the last one, so ours must come first.
+  stub curl \
+    "-X POST --silent --show-error --max-time 30 --form format=junit ${COMMON_CURL_OPTIONS} --form tags[ci.worker.id]=an-agent-id --form tags[ci.worker.id]=custom-worker \* -H \* : echo 'curl success'"
+
+  run "$PWD/hooks/pre-exit"
+
+  unstub curl
+
+  assert_success
+  assert_output --partial "curl success"
+}
+
+@test "The agent ID tag is preserved alongside other configured tags" {
+  export BUILDKITE_AGENT_ID="an-agent-id"
+  export BUILDKITE_PLUGIN_TEST_COLLECTOR_TAGS="hello=world"
+
+  stub curl \
+    "-X POST --silent --show-error --max-time 30 --form format=junit ${COMMON_CURL_OPTIONS} --form tags[ci.worker.id]=an-agent-id --form tags[hello]=world \* -H \* : echo 'curl success'"
+
+  run "$PWD/hooks/pre-exit"
+
+  unstub curl
+
+  assert_success
+  assert_output --partial "curl success"
+}
+
 @test "Debug true prints the curl info w/o token" {
   export BUILDKITE_PLUGIN_TEST_COLLECTOR_DEBUG="true"
 
